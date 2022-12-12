@@ -30,29 +30,30 @@ impl Vec3 {
         self / self.mag()
     }
 
-    pub fn apply(&self, pixel: &mut [u8]){
+    pub fn apply(&self, pixel: &mut [u8]) {
         pixel[0] = Self::clamp(self.x);
         pixel[1] = Self::clamp(self.y);
         pixel[2] = Self::clamp(self.z);
     }
 
-    pub fn set(&mut self, other: &Vec3){
+    pub fn set(&mut self, other: &Vec3) {
         self.x = other.x;
         self.y = other.y;
         self.z = other.z;
     }
 
-    pub fn set_scalar(&mut self, x: Float, y: Float, z: Float){
+    pub fn set_scalar(&mut self, x: Float, y: Float, z: Float) {
         self.x = x;
         self.y = y;
         self.z = z;
     }
 
     fn clamp(f: Float) -> u8 {
-        if f > 1.0
-        {return 255;}
-        else if f < 0.0
-        {return 0;}
+        if f > 1.0 {
+            return 255;
+        } else if f < 0.0 {
+            return 0;
+        }
         (f * 255.0) as u8
     }
 }

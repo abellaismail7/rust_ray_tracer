@@ -1,26 +1,30 @@
-use std::{path::Path, fs::File, io::Write};
 use std::f32;
+use std::{fs::File, io::Write, path::Path};
 
-use crate::vec3::{Vec3, Float};
+use crate::vec3::{Float, Vec3};
 
 #[derive(Debug, Clone)]
 pub struct Canvas {
     pub width: usize,
     pub height: usize,
-    pub ar: Float, // TODO: camera
+    pub ar: Float,    // TODO: camera
     pub angle: Float, // TODO: camera
-    pixels: Vec<u8>
+    pixels: Vec<u8>,
 }
 
-
 impl Canvas {
-    pub fn new(width: usize, height: usize) -> Self
-    {
+    pub fn new(width: usize, height: usize) -> Self {
         let fov = 120_f32;
         let pixels = vec![0; width * height * 3];
         let ar = width as Float / height as Float;
         let angle = (f32::consts::PI * 0.5 * fov / 180.).tan();
-        Self{width, height, ar, angle , pixels}
+        Self {
+            width,
+            height,
+            ar,
+            angle,
+            pixels,
+        }
     }
 
     fn pixel_at(&self, x: usize, y: usize) -> usize {
@@ -32,8 +36,9 @@ impl Canvas {
         color.apply(&mut self.pixels[i..3]);
     }
 
-    pub fn for_each<F>(&mut self, f: F) where
-        F: Fn(&mut [u8], usize, usize)
+    pub fn for_each<F>(&mut self, f: F)
+    where
+        F: Fn(&mut [u8], usize, usize),
     {
         for y in 0..self.height {
             for x in 0..self.width {
@@ -54,7 +59,7 @@ impl Canvas {
     //     }
     // }
 
-    pub fn export_ppm(&self, filename: &str)  -> std::io::Result<()> {
+    pub fn export_ppm(&self, filename: &str) -> std::io::Result<()> {
         let path = Path::new(filename);
         let mut file = File::create(&path)?;
         let header = format!("P6 {} {} 255\n", self.width, self.height);
