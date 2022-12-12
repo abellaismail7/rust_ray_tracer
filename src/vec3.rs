@@ -53,10 +53,10 @@ impl Add for &Vec3 {
     }
 }
 
-impl Add<&Float> for &Vec3 {
+impl Add<Float> for &Vec3 {
     type Output = Vec3;
 
-    fn add(self, rhs: &Float) -> Self::Output {
+    fn add(self, rhs: Float) -> Self::Output {
         Vec3 {
             x: self.x + rhs,
             y: self.y + rhs,
@@ -77,10 +77,10 @@ impl Sub for &Vec3 {
     }
 }
 
-impl Sub<&Float> for &Vec3 {
+impl Sub<Float> for &Vec3 {
     type Output = Vec3;
 
-    fn sub(self, rhs: &Float) -> Self::Output {
+    fn sub(self, rhs: Float) -> Self::Output {
         Vec3 {
             x: self.x - rhs,
             y: self.y - rhs,
@@ -125,10 +125,10 @@ impl Div for &Vec3 {
     }
 }
 
-impl Div<&Float> for &Vec3 {
+impl Div<Float> for &Vec3 {
     type Output = Vec3;
 
-    fn div(self, rhs: &Float) -> Self::Output {
+    fn div(self, rhs: Float) -> Self::Output {
         Vec3 {
             x: self.x / rhs,
             y: self.y / rhs,
@@ -168,7 +168,7 @@ mod tests {
     fn test_add_vec3_float() {
         let v1 = Vec3::new(1.0, 1.0, 1.0);
 
-        let v = &v1 + &(1.0 as Float);
+        let v = &v1 + 1.0;
 
         assert_eq!(v, Vec3::new(2.0, 2.0, 2.0));
     }
@@ -177,7 +177,7 @@ mod tests {
     fn test_sub_vec3_float() {
         let v1 = Vec3::new(3.0, 3.0, 3.0);
 
-        let v = &v1 - &(1.0 as Float);
+        let v = &v1 - 1.0;
 
         assert_eq!(v, Vec3::new(2.0, 2.0, 2.0));
     }
@@ -196,7 +196,7 @@ mod tests {
     fn test_mul_vec3_float() {
         let v1 = Vec3::new(3.0, 3.0, 3.0);
 
-        let v = &v1 * 2.0 as Float;
+        let v = &v1 * 2.0;
 
         assert_eq!(v, Vec3::new(6.0, 6.0, 6.0));
     }
@@ -214,7 +214,7 @@ mod tests {
     fn test_div_vec3_float() {
         let v1 = Vec3::new(6.0, 6.0, 6.0);
 
-        let v = &v1 / &(2.0 as Float);
+        let v = &v1 / 2.0;
 
         assert_eq!(v, Vec3::new(3.0, 3.0, 3.0));
     }
