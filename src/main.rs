@@ -18,26 +18,30 @@ fn get_ray(c: &Canvas, x: usize, y: usize) ->  Vec3 {
 fn main() {
     let mut canvas = Canvas::new(1000, 1000);
     let c1 = canvas.clone();
-    let org = Vec3::new(0.0, 0.0, -1.0);
-    canvas.for_each(|pixels, x, y|{
+    let org = Vec3::new(0.0, 0.0, -0.8);
+    let light = - &Vec3::new(-4.0, 0.0, -2.0).norm();
+    canvas.for_each(|pixel, x, y|{
         let dir = get_ray(&c1, x, y);
+        //let dir = dir.norm();
         let mut color = Vec3::new(1.0, 0.0 , 1.0);
 
         let a: Float = dir.dot(&dir);
         let b: Float = org.dot(&dir) * 2.0;
-        let c: Float = org.dot(&org) - (0.5 * 0.5);
+        let c: Float = org.dot(&org) - (0.25);
 
         let d: Float = b * b - 4.0 * a * c;
         if d < 0.0
         {
-            color.set_scalar(d, 0.0, 0.0);
-            color.apply(pixels);
-            return ;
+            color.set_scalar(0.0, 0.0, 0.0);
+            color.apply(pixel);
+            return;
         }
-        let t: Float = (-b) - d*d / 2.0 * a;
+        let t: Float = -b - d*d / 2.0 * a;
         let hitp = &(&org + &dir) * t;
-        color.set(&hitp);
-        color.apply(pixels);
+        let norm = hitp.norm();
+        let f = norm.dot(&light);
+        color = &color * f;
+        color.apply(pixel);
     });
 
     canvas.export_ppm("file.ppm").ok();
