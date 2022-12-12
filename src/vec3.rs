@@ -22,6 +22,14 @@ impl Vec3 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
+    pub fn mag(&self) -> Float {
+        self.dot(self).sqrt()
+    }
+
+    pub fn norm(&self) -> Vec3 {
+        self / self.mag()
+    }
+
     pub fn apply(&self, pixels: &mut [u8]){
         pixels[0] = (self.x * 255.0) as u8;
         pixels[1] = (self.y * 255.0) as u8;
