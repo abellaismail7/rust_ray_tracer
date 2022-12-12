@@ -18,6 +18,14 @@ impl Vec3 {
         Self { x: f, y: f, z: f }
     }
 
+    pub fn cross(&self, other: &Vec3) -> Self {
+        Self {
+            x: self.y * other.z + self.z * other.y,
+            y: self.x * other.z + self.z * other.x,
+            z: self.x * other.y + self.y * other.x,
+        }
+    }
+
     pub fn dot(&self, rhs: &Vec3) -> Float {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
@@ -252,6 +260,15 @@ mod tests {
 
         let res = v1.dot(&v2);
         assert_eq!(res, 12.0 + 21.0 + 8.0);
+    }
+
+    #[test]
+    fn test_cross_vec3_vec3() {
+        let v1 = Vec3::new(1.0, 0.0, 0.0);
+        let v2 = Vec3::new(0.0, 1.0, 0.0);
+
+        let res = v1.cross(&v2);
+        assert_eq!(res, Vec3::new(0.0, 0.0, 1.0));
     }
 
     #[test]
