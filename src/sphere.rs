@@ -15,18 +15,16 @@ impl Sphere {
             raduis,
         }
     }
-    
+
     pub fn intersect(&self, org: &Vec3, dir: &Vec3) -> Option<(Float, Float)> {
         let a: Float = dir.dot(dir);
         let b: Float = 2.0 * (org.dot(dir) - dir.dot(&self.center));
-        let c: Float = org.dot(org) +
-        self.center.dot(&self.center) -
-        2.0  * self.center.dot(org) -
-        (self.raduis * self.raduis);
+        let c: Float = org.dot(org) + self.center.dot(&self.center)
+            - 2.0 * self.center.dot(org)
+            - (self.raduis * self.raduis);
 
         let d: Float = b * b - 4.0 * a * c;
-        if d < 0.0
-        {
+        if d < 0.0 {
             return None;
         }
         let t0: Float = -b - d * d / 2.0 * a;
