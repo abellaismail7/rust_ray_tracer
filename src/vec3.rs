@@ -196,7 +196,7 @@ mod tests {
     fn test_mul_vec3_float() {
         let v1 = Vec3::new(3.0, 3.0, 3.0);
 
-        let v = &v1 * &(2.0 as Float);
+        let v = &v1 * 2.0 as Float;
 
         assert_eq!(v, Vec3::new(6.0, 6.0, 6.0));
     }
