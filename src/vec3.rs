@@ -1,8 +1,8 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
-type Float = f32;
+pub type Float = f32;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Vec3 {
     x: Float,
     y: Float,
@@ -10,16 +10,34 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    fn new(x: Float, y: Float, z: Float) -> Self {
+    pub fn new(x: Float, y: Float, z: Float) -> Self {
         Self { x, y, z }
     }
 
-    fn from_float(f: Float) -> Self {
+    pub fn from_float(f: Float) -> Self {
         Self { x: f, y: f, z: f }
     }
 
-    fn dot(&self, rhs: &Vec3) -> Float {
+    pub fn dot(&self, rhs: &Vec3) -> Float {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+    }
+
+    pub fn apply(&self, pixels: &mut [u8]){
+        pixels[0] = (self.x * 255.0) as u8;
+        pixels[1] = (self.y * 255.0) as u8;
+        pixels[2] = (self.z * 255.0) as u8;
+    }
+
+    pub fn set(&mut self, other: &Vec3){
+        self.x = other.x;
+        self.y = other.y;
+        self.z = other.z;
+    }
+
+    pub fn set_scalar(&mut self, x: Float, y: Float, z: Float){
+        self.x = x;
+        self.y = y;
+        self.z = z;
     }
 }
 
@@ -83,10 +101,10 @@ impl Mul for &Vec3 {
     }
 }
 
-impl Mul<&Float> for &Vec3 {
+impl Mul<Float> for &Vec3 {
     type Output = Vec3;
 
-    fn mul(self, rhs: &Float) -> Self::Output {
+    fn mul(self, rhs: Float) -> Self::Output {
         Vec3 {
             x: self.x * rhs,
             y: self.y * rhs,
