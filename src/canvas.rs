@@ -36,10 +36,7 @@ impl Canvas {
         color.apply(&mut self.pixels[i..3]);
     }
 
-    pub fn for_each<F>(&mut self, f: F)
-    where
-        F: Fn(&mut [u8], usize, usize),
-    {
+    pub fn for_each(&mut self, f: impl Fn(&mut [u8], usize, usize)) {
         for y in 0..self.height {
             for x in 0..self.width {
                 let i = self.pixel_at(x, y);
