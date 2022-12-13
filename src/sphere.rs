@@ -1,6 +1,6 @@
 use crate::vec3::{Float, Vec3};
 
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct Sphere {
     center: Vec3,
     pub color: Vec3,
@@ -17,18 +17,17 @@ impl Sphere {
     }
 
     pub fn intersect(&self, org: &Vec3, dir: &Vec3) -> Option<(Float, Float)> {
+        let oc = org - &self.center;
         let a: Float = dir.dot(dir);
-        let b: Float = 2.0 * (org.dot(dir) - dir.dot(&self.center));
-        let c: Float = org.dot(org) + self.center.dot(&self.center)
-            - 2.0 * self.center.dot(org)
-            - (self.raduis * self.raduis);
+        let b2: Float = oc.dot(dir);
+        let c: Float = oc.dot(&oc) - (self.raduis * self.raduis);
 
-        let d: Float = b * b - 4.0 * a * c;
+        let d: Float = b2 * b2 - a * c;
         if d < 0.0 {
             return None;
         }
-        let t0: Float = -b - d * d / 2.0 * a;
-        let t1: Float = -b + d * d / 2.0 * a;
+        let t0: Float = -b2 - d.sqrt() / a;
+        let t1: Float = -b2 + d.sqrt() / a;
         Some((t0, t1))
     }
 }
