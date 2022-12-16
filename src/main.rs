@@ -10,6 +10,32 @@ pub mod scene;
 pub mod utils;
 pub mod world;
 
+fn lighting(m: &Material, lights: &[Light], eye_vn: &Vec3, normal_v: &Vec3, hitp: &Vec3) -> Vec3 {
+
+    let l = &lights[0];
+    let color = &m.color * &l.intensity;
+
+    let ambient =  &color * m.ambient;
+    let mut specular = Vec3::from_float(0.0);
+    let mut diff = Vec3::from_float(0.0);
+
+    let light_dir = (&l.position - hitp).norm();
+    let light_dot = light_dir.dot(normal_v);
+
+    if light_dot >= 0.0 {
+        diff = &(&color * m.diffuse) * normal_v.dot(&light_dir);
+
+        let reflect = (-&light_dir).reflect(normal_v).norm();
+        let reflect_dot = reflect.dot(eye_vn);
+
+        if reflect_dot > 0.0 {
+            let factor =  reflect_dot.powf(m.shininess);
+            specular = &(&l.intensity * m.specular) * factor;
+        }
+    }
+    &(&ambient + &diff) + &specular
+}
+
 fn trace(ray: &Ray, spheres: &[Sphere], lights: &[Light]) -> Vec3 {
     let mut sphere: Option<&Sphere> = None;
     let mut t = Float::INFINITY;
@@ -26,8 +52,7 @@ fn trace(ray: &Ray, spheres: &[Sphere], lights: &[Light]) -> Vec3 {
         Some(s) => {
             let hitp = ray.position(t);
             let norm = s.normal_at(&hitp);
-            let f = norm.dot(&lights[0].position);
-            &s.m.color * f
+            lighting(&s.m, lights, &(-ray.dir).norm(), &norm, &hitp)
         }
         None => bg,
     }
