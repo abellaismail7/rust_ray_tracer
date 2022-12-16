@@ -8,8 +8,8 @@ pub mod scene;
 pub mod utils;
 
 fn get_ray(c: &Camera, x: usize, y: usize) -> Vec3 {
-    let x = c.x_step * (x as Float) - 1.0;
-    let y = c.y_step * (y as Float) - 1.0;
+    let x = -(c.x_step * (x as Float) - 1.0);
+    let y = -(c.y_step * (y as Float) - 1.0);
     let dir = &c.forword + &(&(&c.up * c.h) * y);
     &dir + &(&(&c.right * c.w) * x)
 }
