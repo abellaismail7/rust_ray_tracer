@@ -37,4 +37,11 @@ impl Camera {
             y_step: 2.0 / (height as Float),
         }
     }
+
+    pub fn get_ray(&self, x: usize, y: usize) -> Vec3 {
+        let x = -(self.x_step * (x as Float) - 1.0);
+        let y = -(self.y_step * (y as Float) - 1.0);
+        let dir = &self.forword + &(&(&self.up * self.h) * y);
+        &dir + &(&(&self.right * self.w) * x)
+    }
 }
