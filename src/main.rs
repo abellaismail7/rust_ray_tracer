@@ -29,7 +29,7 @@ fn main() {
         let dir = camera.get_ray(x, y);
         let ray = Ray::new(&camera.org, &dir);
         let mut sphere: Option<&Sphere> = None;
-        let mut t = f32::INFINITY;
+        let mut t = Float::INFINITY;
         for s in spheres.iter() {
             if let Some((t0, _t1)) = s.intersect(&camera.org, &dir) {
                 if t0 < t {

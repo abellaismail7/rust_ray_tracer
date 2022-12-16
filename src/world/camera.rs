@@ -1,5 +1,4 @@
 use crate::utils::vec3::{Float, Vec3};
-use std::f32;
 
 #[derive(Debug)]
 pub struct Camera {
@@ -24,7 +23,7 @@ impl Camera {
     ) -> Self {
         let right = forword.cross(&up);
         let ar = width as Float / (height as Float);
-        let h = (f32::consts::PI * 0.5 * fov / 180.).tan();
+        let h = (fov.to_radians() * 0.5).tan();
         let w = h * ar;
         Self {
             org,
