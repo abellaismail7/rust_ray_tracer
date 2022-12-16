@@ -1,5 +1,5 @@
 use scene::canvas::Canvas;
-use utils::vec3::{Float, Vec3};
+use utils::{vec3::{Float, Vec3}, ray::Ray};
 use world::{camera::Camera, sphere::Sphere};
 
 
@@ -33,6 +33,7 @@ fn main() {
         let camera = get_camera(&canvas);
         canvas.for_each(|pixel, x, y| {
             let dir = get_ray(&camera, x, y);
+            let ray = Ray::new(&camera.org, &dir);
             let mut sphere: Option<&Sphere> = None;
             let mut t = f32::INFINITY;
             for s in spheres.iter() {
@@ -45,7 +46,7 @@ fn main() {
             }
             match sphere {
                 Some(s) => {
-                    let hitp = &(&camera.org + &dir) * t;
+                    let hitp = ray.position(t);
                     let norm = hitp.norm();
                     let f = norm.dot(&light);
                     let color = &s.color * f;
