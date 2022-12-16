@@ -1,4 +1,4 @@
-use crate::utils::vec3::{Vec3, Float};
+use crate::utils::vec3::{Float, Vec3};
 
 #[derive(Debug)]
 pub struct Ray<'a> {
@@ -18,19 +18,18 @@ impl<'a> Ray<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::utils::vec3::Vec3;
     use super::*;
+    use crate::utils::vec3::Vec3;
 
     #[test]
     fn test_new() {
         let org = Vec3::new(2.0, 3.0, 4.0);
         let dir = Vec3::new(1.0, 0.0, 0.0);
         let ray = Ray::new(&org, &dir);
-        
+
         assert_eq!(ray.org, &org);
         assert_eq!(ray.dir, &dir);
     }
-
 
     #[test]
     fn test_position() {
@@ -44,4 +43,3 @@ mod tests {
         assert_eq!(ray.position(2.5), Vec3::new(4.5, 3.0, 4.0));
     }
 }
-
