@@ -24,7 +24,7 @@ fn trace(ray: &Ray, spheres: &[Sphere], lights: &[Vec3] ) -> Vec3{
     match sphere {
         Some(s) => {
             let hitp = ray.position(t);
-            let norm = hitp.norm();
+            let norm = s.normal_at(&hitp);
             let f = norm.dot(&lights[0]);
             &s.color * f
         }

@@ -30,4 +30,10 @@ impl Sphere {
         let t1: Float = -b2 + d.sqrt() / a;
         Some((t0, t1))
     }
+
+    pub fn normal_at(&self, hitp: &Vec3) -> Vec3
+    {
+        hitp - &self.center
+    }
+
 }
