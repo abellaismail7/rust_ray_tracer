@@ -1,4 +1,3 @@
-use std::f32;
 use std::{fs::File, io::Write, path::Path};
 
 use crate::utils::vec3::{Float, Vec3};
@@ -17,7 +16,7 @@ impl Canvas {
         let fov = 120_f32;
         let pixels = vec![0; width * height * 3];
         let ar = width as Float / height as Float;
-        let angle = (f32::consts::PI * 0.5 * fov / 180.).tan();
+        let angle = (fov.to_radians() * 0.5).tan();
         Self {
             width,
             height,
@@ -44,17 +43,6 @@ impl Canvas {
             }
         }
     }
-
-    // pub fn for_each_mut<F>(&mut self, f: F) where
-    //     F: Fn(usize,usize, &mut Vec3)
-    // {
-    //     for y in 0..self.height {
-    //         for x in 0..self.width {
-    //             let p = self.pixel_at(x, y);
-    //             f(x, y, &mut self.pixels[p]);
-    //         }
-    //     }
-    // }
 
     pub fn export_ppm(&self, filename: &str) -> std::io::Result<()> {
         let path = Path::new(filename);
