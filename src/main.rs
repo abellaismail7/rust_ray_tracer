@@ -21,10 +21,23 @@ fn lighting(m: &Material, w: &World, eye_vn: &Vec3, normal_v: &Vec3, hitp: &Vec3
     let light_dir = (&l.position - hitp).norm();
     let light_dot = light_dir.dot(normal_v);
 
-    if light_dot >= 0.0 {
-        diff = &(&color * m.diffuse) * normal_v.dot(&light_dir);
+    let mut t = Float::INFINITY;
+    for s in w.spheres.iter() {
+        // this will compare raw pointers
+        if std::ptr::eq(&s.m, m) {
+            continue;
+        }
+        if let Some((t0, _t1)) = s.intersect(hitp, &-&light_dir) {
+            if t0 < t {
+                t = t0;
+            }
+        };
+    }
 
-        let reflect = (-&light_dir).reflect(normal_v).norm();
+    if light_dot >= 0.0 && t >= light_dir.mag() {
+        diff = &(&color * m.diffuse) * light_dot;
+
+        let reflect = (-&light_dir).reflect(normal_v);
         let reflect_dot = reflect.dot(eye_vn);
 
         if reflect_dot > 0.0 {
@@ -36,6 +49,7 @@ fn lighting(m: &Material, w: &World, eye_vn: &Vec3, normal_v: &Vec3, hitp: &Vec3
 }
 
 fn trace(w: &World, ray: &Ray) -> Vec3 {
+    let bg = Vec3::new(0.0, 0.0, 0.0);
     let mut sphere: Option<&Sphere> = None;
     let mut t = Float::INFINITY;
     for s in w.spheres.iter() {
@@ -46,7 +60,6 @@ fn trace(w: &World, ray: &Ray) -> Vec3 {
             }
         };
     }
-    let bg = Vec3::new(0.0, 0.0, 0.0);
     match sphere {
         Some(s) => {
             let hitp = ray.position(t);
@@ -61,15 +74,15 @@ fn main() {
     let mut canvas = Canvas::new(1000, 1000);
     let spheres = vec![
         Sphere::new(
-            Vec3::new(1.0, 1.5, -1.0),
+            Vec3::new(-3.0, -0.0, -0.0),
             Material {
-                color: Vec3::new(1.0, 0.2, 1.0),
+                color: Vec3::new(0.0, 1.0, 1.0),
                 ..Material::default()
             },
             0.5,
         ),
         Sphere::new(
-            Vec3::new(0.0, 0.0, 0.0),
+            Vec3::new(-0.0, 0.0, -0.0),
             Material {
                 color: Vec3::new(1.0, 0.2, 1.0),
                 ..Material::default()
@@ -78,7 +91,7 @@ fn main() {
         ),
     ];
     let camera = Camera::new(
-        Vec3::new(0.0, 0.0, -5.0),
+        Vec3::new(0.0, 0.0, -10.0),
         Vec3::new(0.0, 0.0, 1.0).norm(),
         Vec3::new(0.0, 1.0, 0.0),
         45.0,
@@ -86,7 +99,7 @@ fn main() {
         canvas.height,
     );
     let lights = vec![Light::new(
-        Vec3::new(-10.0, 10.0, -10.0),
+        Vec3::new(-14.0, -0.0, -0.0),
         Vec3::from_float(1.0),
     )];
     let w = World::new(camera, lights, spheres);
