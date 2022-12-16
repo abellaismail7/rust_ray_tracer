@@ -38,6 +38,10 @@ impl Vec3 {
         self / self.mag()
     }
 
+    pub fn reflect(&self, normal: &Vec3) -> Vec3{
+        self - &(&(normal * 2.0) * self.dot(normal))
+    }
+
     pub fn apply(&self, pixel: &mut [u8]) {
         pixel[0] = Self::clamp(self.x);
         pixel[1] = Self::clamp(self.y);
@@ -260,6 +264,15 @@ mod tests {
 
         let res = v1.dot(&v2);
         assert_eq!(res, 12.0 + 21.0 + 8.0);
+    }
+
+    #[test]
+    fn test_reflect() {
+        let v1 = Vec3::new(1.0, -1.0, 0.0);
+        let normal = &Vec3::new(0.0, 1.0, 0.0).norm();
+
+        let r = v1.reflect(normal);
+        assert_eq!(r, Vec3::new(1.0, 1.0, 0.0));
     }
 
     #[test]
