@@ -31,6 +31,6 @@ impl Sphere {
     }
 
     pub fn normal_at(&self, hitp: &Vec3) -> Vec3 {
-        hitp - &self.center
+        (hitp - &self.center).norm()
     }
 }
