@@ -1,5 +1,6 @@
 use scene::canvas::Canvas;
 use utils::{
+    material::Material,
     ray::Ray,
     vec3::{Float, Vec3},
 };
@@ -9,7 +10,7 @@ pub mod scene;
 pub mod utils;
 pub mod world;
 
-fn trace(ray: &Ray, spheres: &[Sphere], lights: &[Vec3] ) -> Vec3{
+fn trace(ray: &Ray, spheres: &[Sphere], lights: &[Vec3]) -> Vec3 {
     let mut sphere: Option<&Sphere> = None;
     let mut t = Float::INFINITY;
     for s in spheres.iter() {
@@ -26,7 +27,7 @@ fn trace(ray: &Ray, spheres: &[Sphere], lights: &[Vec3] ) -> Vec3{
             let hitp = ray.position(t);
             let norm = s.normal_at(&hitp);
             let f = norm.dot(&lights[0]);
-            &s.color * f
+            &s.m.color * f
         }
         None => bg,
     }
@@ -35,7 +36,22 @@ fn trace(ray: &Ray, spheres: &[Sphere], lights: &[Vec3] ) -> Vec3{
 fn main() {
     let mut canvas = Canvas::new(1000, 1000);
     let spheres = vec![
-        Sphere::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 1.0), 1.0),
+        Sphere::new(
+            Vec3::new(1.0, 1.5, -1.0),
+            Material {
+                color: Vec3::new(1.0, 0.2, 1.0),
+                ..Material::default()
+            },
+            0.5,
+        ),
+        Sphere::new(
+            Vec3::new(0.0, 0.0, 0.0),
+            Material {
+                color: Vec3::new(0.0, 1.0, 1.0),
+                ..Material::default()
+            },
+            1.0,
+        ),
     ];
     let camera = Camera::new(
         Vec3::new(0.0, 0.0, 3.0),
@@ -45,9 +61,7 @@ fn main() {
         canvas.width,
         canvas.height,
     );
-    let lights = vec![
-        Vec3::new(-2.0, -2.0, -2.0),
-    ];
+    let lights = vec![Vec3::new(-2.0, -2.0, -2.0)];
     canvas.for_each(|pixel, x, y| {
         let dir = camera.get_ray(x, y);
         let ray = Ray::new(&camera.org, &dir);

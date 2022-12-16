@@ -1,18 +1,18 @@
-use crate::utils::vec3::{Float, Vec3};
+use crate::utils::{vec3::{Float, Vec3}, material::Material};
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Sphere {
     center: Vec3,
-    pub color: Vec3,
     raduis: Float,
+    pub m: Material,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, color: Vec3, raduis: Float) -> Self {
+    pub fn new(center: Vec3, m: Material, raduis: Float) -> Self {
         Self {
             center,
-            color,
             raduis,
+            m,
         }
     }
 
