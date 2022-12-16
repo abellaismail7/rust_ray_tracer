@@ -1,6 +1,6 @@
 use crate::vec3::{Float, Vec3};
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct Sphere {
     center: Vec3,
     pub color: Vec3,

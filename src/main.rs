@@ -6,7 +6,6 @@ use vec3::{Float, Vec3};
 
 pub mod camera;
 pub mod canvas;
-pub mod ray;
 pub mod sphere;
 pub mod vec3;
 
