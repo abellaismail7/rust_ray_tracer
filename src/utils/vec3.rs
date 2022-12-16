@@ -2,7 +2,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 pub type Float = f32;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Vec3 {
     x: Float,
     y: Float,
@@ -38,14 +38,14 @@ impl Vec3 {
         self / self.mag()
     }
 
-    pub fn reflect(&self, normal: &Vec3) -> Vec3{
-        self - &(&(normal * 2.0) * self.dot(normal))
+    pub fn reflect(&self, normal: &Vec3) -> Vec3 {
+        self - &(&(normal * self.dot(normal)) * (2.0 as Float))
     }
 
     pub fn apply(&self, pixel: &mut [u8]) {
-        pixel[0] = Self::clamp(self.x);
-        pixel[1] = Self::clamp(self.y);
-        pixel[2] = Self::clamp(self.z);
+        pixel[0] = (self.x.clamp(0.0, 1.0) * 255.0) as u8;
+        pixel[1] = (self.y.clamp(0.0, 1.0) * 255.0) as u8;
+        pixel[2] = (self.z.clamp(0.0, 1.0) * 255.0) as u8;
     }
 
     pub fn set(&mut self, other: &Vec3) {
@@ -60,13 +60,22 @@ impl Vec3 {
         self.z = z;
     }
 
-    fn clamp(f: Float) -> u8 {
-        if f > 1.0 {
-            return 255;
-        } else if f < 0.0 {
-            return 0;
-        }
-        (f * 255.0) as u8
+    pub fn to_color(&self) -> u32 {
+        let r = (self.x.clamp(0.0, 1.0) * 255.0) as u32;
+        let g = (self.y.clamp(0.0, 1.0) * 255.0) as u32;
+        let b = (self.z.clamp(0.0, 1.0) * 255.0) as u32;
+        r << 16 | g << 8 | b
+    }
+}
+
+impl PartialEq for Vec3 {
+    fn eq(&self, other: &Self) -> bool {
+        let ep = 0.00001;
+        let x_diff = (self.x - other.x).abs();
+        let y_diff = (self.y - other.y).abs();
+        let z_diff = (self.z - other.z).abs();
+
+        x_diff < ep && y_diff < ep && z_diff < ep
     }
 }
 
@@ -258,7 +267,7 @@ mod tests {
     }
 
     #[test]
-    fn test_dot_vec3_vec3() {
+    fn test_dot_vec3_vec3_1() {
         let v1 = Vec3::new(6.0, 7.0, 4.0);
         let v2 = Vec3::new(2.0, 3.0, 2.0);
 
@@ -267,12 +276,34 @@ mod tests {
     }
 
     #[test]
-    fn test_reflect() {
+    fn test_dot_vec3_vec3_2() {
+        let v1 = Vec3::from_float(1.0);
+        let v2 = Vec3::new(-2.0, 2.0, 0.0);
+        let v2_norm = Vec3::new(-2.0, 2.0, 0.0).norm();
+
+        let res = v1.dot(&v2);
+        let res_n = v1.dot(&v2_norm);
+        assert_eq!(res, 0.0);
+        assert_eq!(res, res_n);
+    }
+
+    #[test]
+    fn test_reflect_1() {
         let v1 = Vec3::new(1.0, -1.0, 0.0);
         let normal = &Vec3::new(0.0, 1.0, 0.0).norm();
 
         let r = v1.reflect(normal);
         assert_eq!(r, Vec3::new(1.0, 1.0, 0.0));
+    }
+
+    #[test]
+    fn test_reflect_2() {
+        let twosqrt2 = 2.0_f32.powf(0.5) / 2.0;
+        let v1 = Vec3::new(0.0, -1.0, 0.0);
+        let normal = &Vec3::new(twosqrt2, twosqrt2, 0.0).norm();
+
+        let r = v1.reflect(normal);
+        assert_eq!(r, Vec3::new(1.0, 0.0, 0.0));
     }
 
     #[test]
