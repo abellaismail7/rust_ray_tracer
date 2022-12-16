@@ -1,4 +1,4 @@
-use super::vec3::{Vec3, Float};
+use super::vec3::{Float, Vec3};
 
 #[derive(Debug)]
 pub struct Material {

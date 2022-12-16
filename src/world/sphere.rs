@@ -1,4 +1,7 @@
-use crate::utils::{vec3::{Float, Vec3}, material::Material};
+use crate::utils::{
+    material::Material,
+    vec3::{Float, Vec3},
+};
 
 #[derive(Debug)]
 pub struct Sphere {
@@ -9,11 +12,7 @@ pub struct Sphere {
 
 impl Sphere {
     pub fn new(center: Vec3, m: Material, raduis: Float) -> Self {
-        Self {
-            center,
-            raduis,
-            m,
-        }
+        Self { center, raduis, m }
     }
 
     pub fn intersect(&self, org: &Vec3, dir: &Vec3) -> Option<(Float, Float)> {
@@ -31,9 +30,7 @@ impl Sphere {
         Some((t0, t1))
     }
 
-    pub fn normal_at(&self, hitp: &Vec3) -> Vec3
-    {
+    pub fn normal_at(&self, hitp: &Vec3) -> Vec3 {
         hitp - &self.center
     }
-
 }
