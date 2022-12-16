@@ -72,22 +72,22 @@ fn main() {
         Sphere::new(
             Vec3::new(0.0, 0.0, 0.0),
             Material {
-                color: Vec3::new(0.0, 1.0, 1.0),
+                color: Vec3::new(1.0, 0.2, 1.0),
                 ..Material::default()
             },
             1.0,
         ),
     ];
     let camera = Camera::new(
-        Vec3::new(0.0, 0.0, 3.0),
+        Vec3::new(0.0, 0.0, -5.0),
         Vec3::new(0.0, 0.0, 1.0).norm(),
         Vec3::new(0.0, 1.0, 0.0),
-        90.0,
+        45.0,
         canvas.width,
         canvas.height,
     );
     let lights = vec![Light::new(
-        Vec3::new(-2.0, -2.0, -2.0),
+        Vec3::new(-10.0, 10.0, -10.0),
         Vec3::from_float(1.0),
     )];
     canvas.for_each(|pixel, x, y| {
