@@ -10,16 +10,15 @@ pub mod utils;
 pub mod world;
 
 fn main() {
-    let mut canvas = Canvas::new(400, 225);
+    let mut canvas = Canvas::new(1000, 1000);
     let spheres = vec![
-        Sphere::new(Vec3::new(0.0, -100.5, 4.0), Vec3::new(0.5, 1.0, 0.5), 100.0),
-        Sphere::new(Vec3::new(0.0, 0.0, 1.0), Vec3::new(1.0, 0.0, 1.0), 0.5),
+        Sphere::new(Vec3::new(0.0, 0.0, 0.0), Vec3::new(1.0, 0.0, 1.0), 0.5),
     ];
     let camera = Camera::new(
         Vec3::new(0.0, 0.0, 1.0),
         Vec3::new(0.0, 0.0, 1.0).norm(),
         Vec3::new(0.0, 1.0, 0.0),
-        45.0,
+        90.0,
         canvas.width,
         canvas.height,
     );
