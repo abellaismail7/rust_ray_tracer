@@ -1,13 +1,11 @@
-use crate::canvas::Canvas;
-use camera::Camera;
-use sphere::Sphere;
-use std::f32;
-use vec3::{Float, Vec3};
+use scene::canvas::Canvas;
+use utils::vec3::{Float, Vec3};
+use world::{camera::Camera, sphere::Sphere};
 
-pub mod camera;
-pub mod canvas;
-pub mod sphere;
-pub mod vec3;
+
+pub mod world;
+pub mod scene;
+pub mod utils;
 
 fn get_ray(c: &Camera, x: usize, y: usize) -> Vec3 {
     let x = c.x_step * (x as Float) - 1.0;

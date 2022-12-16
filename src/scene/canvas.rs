@@ -1,7 +1,7 @@
 use std::f32;
 use std::{fs::File, io::Write, path::Path};
 
-use crate::vec3::{Float, Vec3};
+use crate::utils::vec3::{Float, Vec3};
 
 #[derive(Debug, Clone)]
 pub struct Canvas {

@@ -1,4 +1,4 @@
-use crate::vec3::{Float, Vec3};
+use crate::utils::vec3::{Float, Vec3};
 use std::f32;
 
 #[derive(Debug)]

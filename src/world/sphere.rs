@@ -1,4 +1,4 @@
-use crate::vec3::{Float, Vec3};
+use crate::utils::vec3::{Float, Vec3};
 
 #[derive(Clone, Debug)]
 pub struct Sphere {
