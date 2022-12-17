@@ -48,6 +48,16 @@ impl Mat {
         }
         m
     }
+
+    pub fn transpose(&self) -> Self {
+        let mut m = Self::default(self.cols, self.rows);
+        for j in 0..m.rows {
+            for i in 0..m.cols {
+                m.tab[i][j] = self.tab[j][i];
+            }
+        }
+        m
+    }
 }
 impl PartialEq for Mat {
     fn eq(&self, other: &Self) -> bool {
@@ -139,5 +149,25 @@ mod tests {
         let res = &m * &v;
 
         assert_eq!(res, Vec3::new(18.0, 24.0, 33.0));
+    }
+
+    #[test]
+    fn test_transpose() {
+        let m = Mat::new(vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![2.0, 4.0, 4.0, 2.0],
+            vec![8.0, 6.0, 4.0, 1.0],
+            vec![0.0, 0.0, 0.0, 1.0],
+        ]);
+
+        assert_eq!(
+            m.transpose(),
+            Mat::new(vec![
+                vec![1.0, 2.0, 8.0, 0.0],
+                vec![2.0, 4.0, 6.0, 0.0],
+                vec![3.0, 4.0, 4.0, 0.0],
+                vec![4.0, 2.0, 1.0, 1.0],
+            ])
+        );
     }
 }
