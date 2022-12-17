@@ -93,3 +93,51 @@ impl Mul<&Vec3> for &Mat {
         Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_mul_mat4_mat4() {
+        let m1 = Mat::new(vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![5.0, 6.0, 7.0, 8.0],
+            vec![9.0, 8.0, 7.0, 6.0],
+            vec![5.0, 4.0, 3.0, 2.0],
+        ]);
+        let m2 = Mat::new(vec![
+            vec![-2.0, 1.0, 2.0, 3.0],
+            vec![3.0, 2.0, 1.0, -1.0],
+            vec![4.0, 3.0, 6.0, 5.0],
+            vec![1.0, 2.0, 7.0, 8.0],
+        ]);
+
+        let m = &m1 * &m2;
+
+        assert_eq!(
+            m,
+            Mat::new(vec![
+                vec![20.0, 22.0, 50.0, 48.0],
+                vec![44.0, 54.0, 114.0, 108.0],
+                vec![40.0, 58.0, 110.0, 102.0],
+                vec![16.0, 26.0, 46.0, 42.0],
+            ])
+        );
+    }
+
+    #[test]
+    fn test_mul_mat4_vec3() {
+        let m = Mat::new(vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![2.0, 4.0, 4.0, 2.0],
+            vec![8.0, 6.0, 4.0, 1.0],
+            vec![0.0, 0.0, 0.0, 1.0],
+        ]);
+        let v = Vec3::new(1.0, 2.0, 3.0);
+
+        let res = &m * &v;
+
+        assert_eq!(res, Vec3::new(18.0, 24.0, 33.0));
+    }
+}
