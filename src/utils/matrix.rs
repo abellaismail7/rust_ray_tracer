@@ -9,6 +9,21 @@ pub struct Mat {
     pub cols: usize,
 }
 
+impl Mat {
+    pub fn new(tab: Vec<Vec<Float>>) -> Self {
+        let cols = tab[0].len();
+        let rows = tab.len();
+        Self { tab, cols, rows }
+    }
+
+    pub fn default(cols: usize, rows: usize) -> Self {
+        Self {
+            tab: vec![vec![0.0; cols]; rows],
+            cols,
+            rows,
+        }
+    }
+}
 impl PartialEq for Mat {
     fn eq(&self, other: &Self) -> bool {
         if self.cols != other.cols && self.rows != other.rows {
