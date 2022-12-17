@@ -69,7 +69,7 @@ impl Vec3 {
     }
 }
 
-macro_rules! vec_ops{
+macro_rules! vec_ops {
     ($imp:ident, $method:ident, $t:ty) => {
         impl $imp for $t {
             type Output = Vec3;
@@ -127,7 +127,7 @@ macro_rules! vec_ops{
     ($imp:ident, $method:ident, $t:ty, $rhs:ident) => {
         impl $imp<$rhs> for $t {
             type Output = Vec3;
-        
+
             fn $method(self, rhs: $rhs) -> Self::Output {
                 Vec3 {
                     x: self.x.$method(rhs),
@@ -139,7 +139,7 @@ macro_rules! vec_ops{
 
         impl $imp<$rhs> for &$t {
             type Output = Vec3;
-        
+
             fn $method(self, rhs: $rhs) -> Self::Output {
                 Vec3 {
                     x: self.x.$method(rhs),
@@ -151,17 +151,17 @@ macro_rules! vec_ops{
     };
 }
 
-vec_ops!{Add, add, Vec3 }
-vec_ops!{Add, add, Vec3, Float }
+vec_ops! {Add, add, Vec3 }
+vec_ops! {Add, add, Vec3, Float }
 
-vec_ops!{Sub, sub, Vec3 }
-vec_ops!{Sub, sub, Vec3, Float }
+vec_ops! {Sub, sub, Vec3 }
+vec_ops! {Sub, sub, Vec3, Float }
 
-vec_ops!{Div, div, Vec3 }
-vec_ops!{Div, div, Vec3, Float }
+vec_ops! {Div, div, Vec3 }
+vec_ops! {Div, div, Vec3, Float }
 
-vec_ops!{Mul, mul, Vec3 }
-vec_ops!{Mul, mul, Vec3, Float }
+vec_ops! {Mul, mul, Vec3 }
+vec_ops! {Mul, mul, Vec3, Float }
 
 impl PartialEq for Vec3 {
     fn eq(&self, other: &Self) -> bool {
