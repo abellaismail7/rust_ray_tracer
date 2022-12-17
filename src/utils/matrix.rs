@@ -24,6 +24,18 @@ impl Mat {
         }
     }
 
+    pub fn from_vec3(v3: &Vec3, rows: usize) -> Self {
+        let mut m = Self {
+            tab: vec![vec![1.0; 1]; rows],
+            cols: 1,
+            rows,
+        };
+        m.tab[0][0] = v3.x;
+        m.tab[1][0] = v3.y;
+        m.tab[2][0] = v3.z;
+        m
+    }
+
     pub fn identity(&self) -> Self {
         let mut m = Self {
             tab: vec![vec![0.0; self.cols]; self.cols],
@@ -53,3 +65,31 @@ impl PartialEq for Mat {
     }
 }
 
+impl Mul for &Mat {
+    type Output = Mat;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        if self.cols != rhs.rows {
+            panic!("invalid matrix multiplcation");
+        }
+        let mut m = Self::Output::default(rhs.cols, self.rows);
+        for i in 0..m.rows {
+            for j in 0..m.cols {
+                for k in 0..m.rows {
+                    m.tab[i][j] += self.tab[i][k] * rhs.tab[k][j];
+                }
+            }
+        }
+        m
+    }
+}
+
+impl Mul<&Vec3> for &Mat {
+    type Output = Vec3;
+
+    fn mul(self, rhs: &Vec3) -> Vec3 {
+        let m1 = Mat::from_vec3(rhs, self.cols);
+        let r = self * &m1;
+        Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
+    }
+}

@@ -5,9 +5,9 @@ pub const EPSILON: Float = 0.00001;
 
 #[derive(Debug, Clone)]
 pub struct Vec3 {
-    x: Float,
-    y: Float,
-    z: Float,
+    pub x: Float,
+    pub y: Float,
+    pub z: Float,
 }
 
 impl Vec3 {
