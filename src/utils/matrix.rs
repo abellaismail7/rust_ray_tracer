@@ -125,6 +125,14 @@ impl Mat {
         m.tab[2][3] = z;
         m
     }
+
+    pub fn scaling(x: Float, y: Float, z: Float) -> Self{
+        let mut m = Mat::default(4, 4).identity();
+        m.tab[0][0] = x;
+        m.tab[1][1] = y;
+        m.tab[2][2] = z;
+        m
+    }
 }
 
 impl PartialEq for Mat {
@@ -341,5 +349,13 @@ mod tests {
         let v = Vec3::new(-3.0, 4.0, 5.0);
 
         assert_eq!(&t * &v, Vec3::new(2.0, 1.0, 7.0))
+    }
+
+    #[test]
+    fn test_scaling() {
+        let t = Mat::scaling(2.0, 3.0, 4.0);
+        let p = Vec3::new(-4.0, 6.0, 8.0);
+
+        assert_eq!(&t * &p, Vec3::new(-8.0, 18.0, 32.0))
     }
 }
