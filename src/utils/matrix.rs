@@ -103,6 +103,20 @@ impl Mat {
             self.minor(row, col)
         }
     }
+
+    pub fn inverse(&self) -> Self {
+        if self.determinant() == 0.0 {
+            panic!("Matrix is non inversable")
+        }
+        let mut m = Mat::default(self.cols, self.rows);
+        let d = self.determinant();
+        for i in 0..m.rows {
+            for j in 0..m.cols {
+                m.tab[i][j] = self.cofactor(j, i) / d;
+            }
+        }
+        m
+    }
 }
 
 impl PartialEq for Mat {
@@ -289,5 +303,24 @@ mod tests {
         ]);
 
         assert_eq!(m.determinant(), -4071.0);
+    }
+
+    #[test]
+    fn test_inverse() {
+        let m = Mat::new(vec![
+            vec![-5.0, 2.0, 6.0, -8.0],
+            vec![1.0, -5.0, 1.0, 8.0],
+            vec![7.0, 7.0, -6.0, -7.0],
+            vec![1.0, -3.0, 7.0, 4.0],
+        ]);
+
+        let expected = Mat::new(vec![
+            vec![0.21805, 0.45113, 0.24060, -0.04511],
+            vec![-0.80827, -1.45677, -0.44361, 0.52068],
+            vec![-0.07895, -0.22368, -0.05263, 0.19737],
+            vec![-0.52256, -0.81391, -0.30075, 0.30639],
+        ]);
+
+        assert_eq!(m.inverse(), expected);
     }
 }
