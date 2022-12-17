@@ -35,17 +35,17 @@ fn lighting(m: &Material, w: &World, eye_vn: &Vec3, normal_v: &Vec3, hitp: &Vec3
     }
 
     if light_dot >= 0.0 && t >= light_dir.mag() {
-        diff = &(&color * m.diffuse) * light_dot;
+        diff = &color * m.diffuse * light_dot;
 
         let reflect = (-&light_dir).reflect(normal_v);
         let reflect_dot = reflect.dot(eye_vn);
 
         if reflect_dot > 0.0 {
             let factor = reflect_dot.powf(m.shininess);
-            specular = &(&l.intensity * m.specular) * factor;
+            specular = &l.intensity * m.specular * factor;
         }
     }
-    &(&ambient + &diff) + &specular
+    ambient + diff + specular
 }
 
 fn trace(w: &World, ray: &Ray) -> Vec3 {

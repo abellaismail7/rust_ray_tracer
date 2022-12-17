@@ -12,7 +12,7 @@ impl<'a> Ray<'a> {
     }
 
     pub fn position(&self, t: Float) -> Vec3 {
-        self.org + &(self.dir * t)
+        self.org + self.dir * t
     }
 }
 

@@ -39,7 +39,7 @@ impl Vec3 {
     }
 
     pub fn reflect(&self, normal: &Vec3) -> Vec3 {
-        self - &(&(normal * self.dot(normal)) * (2.0 as Float))
+        self - normal * self.dot(normal) * 2.0
     }
 
     pub fn apply(&self, pixel: &mut [u8]) {
@@ -68,6 +68,100 @@ impl Vec3 {
     }
 }
 
+macro_rules! vec_ops{
+    ($imp:ident, $method:ident, $t:ty) => {
+        impl $imp for $t {
+            type Output = Vec3;
+
+            #[inline]
+            fn $method(self, rhs: $t) -> Self::Output {
+                Vec3 {
+                    x: self.x.$method(rhs.x),
+                    y: self.y.$method(rhs.y),
+                    z: self.z.$method(rhs.z),
+                }
+            }
+        }
+
+        impl $imp for &$t {
+            type Output = Vec3;
+
+            #[inline]
+            fn $method(self, rhs: &$t) -> Self::Output {
+                Vec3 {
+                    x: self.x.$method(rhs.x),
+                    y: self.y.$method(rhs.y),
+                    z: self.z.$method(rhs.z),
+                }
+            }
+        }
+
+        impl $imp<&$t> for $t {
+            type Output = Vec3;
+
+            #[inline]
+            fn $method(self, rhs: &$t) -> Self::Output {
+                Vec3 {
+                    x: self.x.$method(rhs.x),
+                    y: self.y.$method(rhs.y),
+                    z: self.z.$method(rhs.z),
+                }
+            }
+        }
+
+        impl $imp<$t> for &$t {
+            type Output = Vec3;
+
+            #[inline]
+            fn $method(self, rhs: $t) -> Self::Output {
+                Vec3 {
+                    x: self.x.$method(rhs.x),
+                    y: self.y.$method(rhs.y),
+                    z: self.z.$method(rhs.z),
+                }
+            }
+        }
+    };
+
+    ($imp:ident, $method:ident, $t:ty, $rhs:ident) => {
+        impl $imp<$rhs> for $t {
+            type Output = Vec3;
+        
+            fn $method(self, rhs: $rhs) -> Self::Output {
+                Vec3 {
+                    x: self.x.$method(rhs),
+                    y: self.y.$method(rhs),
+                    z: self.z.$method(rhs),
+                }
+            }
+        }
+
+        impl $imp<$rhs> for &$t {
+            type Output = Vec3;
+        
+            fn $method(self, rhs: $rhs) -> Self::Output {
+                Vec3 {
+                    x: self.x.$method(rhs),
+                    y: self.y.$method(rhs),
+                    z: self.z.$method(rhs),
+                }
+            }
+        }
+    };
+}
+
+vec_ops!{Add, add, Vec3 }
+vec_ops!{Add, add, Vec3, Float }
+
+vec_ops!{Sub, sub, Vec3 }
+vec_ops!{Sub, sub, Vec3, Float }
+
+vec_ops!{Div, div, Vec3 }
+vec_ops!{Div, div, Vec3, Float }
+
+vec_ops!{Mul, mul, Vec3 }
+vec_ops!{Mul, mul, Vec3, Float }
+
 impl PartialEq for Vec3 {
     fn eq(&self, other: &Self) -> bool {
         let ep = 0.00001;
@@ -79,104 +173,7 @@ impl PartialEq for Vec3 {
     }
 }
 
-impl Add for &Vec3 {
-    type Output = Vec3;
-
-    fn add(self, rhs: &Vec3) -> Self::Output {
-        Vec3 {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-            z: self.z + rhs.z,
-        }
-    }
-}
-
-impl Add<Float> for &Vec3 {
-    type Output = Vec3;
-
-    fn add(self, rhs: Float) -> Self::Output {
-        Vec3 {
-            x: self.x + rhs,
-            y: self.y + rhs,
-            z: self.z + rhs,
-        }
-    }
-}
-
-impl Sub for &Vec3 {
-    type Output = Vec3;
-
-    fn sub(self, rhs: &Vec3) -> Self::Output {
-        Vec3 {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
-            z: self.z - rhs.z,
-        }
-    }
-}
-
-impl Sub<Float> for &Vec3 {
-    type Output = Vec3;
-
-    fn sub(self, rhs: Float) -> Self::Output {
-        Vec3 {
-            x: self.x - rhs,
-            y: self.y - rhs,
-            z: self.z - rhs,
-        }
-    }
-}
-
-impl Mul for &Vec3 {
-    type Output = Vec3;
-
-    fn mul(self, rhs: &Vec3) -> Self::Output {
-        Vec3 {
-            x: self.x * rhs.x,
-            y: self.y * rhs.y,
-            z: self.z * rhs.z,
-        }
-    }
-}
-
-impl Mul<Float> for &Vec3 {
-    type Output = Vec3;
-
-    fn mul(self, rhs: Float) -> Self::Output {
-        Vec3 {
-            x: self.x * rhs,
-            y: self.y * rhs,
-            z: self.z * rhs,
-        }
-    }
-}
-
-impl Div for &Vec3 {
-    type Output = Vec3;
-
-    fn div(self, rhs: &Vec3) -> Self::Output {
-        Vec3 {
-            x: self.x / rhs.x,
-            y: self.y / rhs.y,
-            z: self.z / rhs.z,
-        }
-    }
-}
-
-impl Div<Float> for &Vec3 {
-    type Output = Vec3;
-
-    fn div(self, rhs: Float) -> Self::Output {
-        Vec3 {
-            x: self.x / rhs,
-            y: self.y / rhs,
-            z: self.z / rhs,
-        }
-    }
-}
-
 impl Neg for &Vec3 {
-    // add code here
     type Output = Vec3;
 
     fn neg(self) -> Self::Output {
