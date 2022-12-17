@@ -58,7 +58,53 @@ impl Mat {
         }
         m
     }
+
+    pub fn determinant(&self) -> Float {
+        if self.rows == 2 {
+            let tab = &self.tab;
+            return tab[0][0] * tab[1][1] - tab[0][1] * tab[1][0];
+        }
+        let mut r = 0.0;
+        for j in 0..self.cols {
+            r += self.tab[0][j] * self.cofactor(0, j);
+        }
+        r
+    }
+
+    pub fn submatrix(&self, row: usize, col: usize) -> Self {
+        let mut m = Mat::default(self.cols - 1, self.rows - 1);
+        let mut x = 0;
+        for i in 0..self.rows {
+            if i == row {
+                continue;
+            }
+            let mut y = 0;
+            for j in 0..self.cols {
+                if j == col {
+                    continue;
+                }
+                m.tab[x][y] = self.tab[i][j];
+                y += 1;
+            }
+            x += 1;
+        }
+        m
+    }
+
+    pub fn minor(&self, row: usize, col: usize) -> Float {
+        let sub = self.submatrix(row, col);
+        sub.determinant()
+    }
+
+    pub fn cofactor(&self, row: usize, col: usize) -> Float {
+        if (row + col) % 2 == 1 {
+            -self.minor(row, col)
+        } else {
+            self.minor(row, col)
+        }
+    }
 }
+
 impl PartialEq for Mat {
     fn eq(&self, other: &Self) -> bool {
         if self.cols != other.cols && self.rows != other.rows {
@@ -169,5 +215,79 @@ mod tests {
                 vec![4.0, 2.0, 1.0, 1.0],
             ])
         );
+    }
+
+    #[test]
+    fn test_determinant_2x2() {
+        let m = Mat::new(vec![vec![1.0, 5.0], vec![-3.0, 2.0]]);
+
+        assert_eq!(m.determinant(), 17.0);
+    }
+
+    #[test]
+    fn test_submatri_4x4() {
+        let m = Mat::new(vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![2.0, 4.0, 4.0, 2.0],
+            vec![8.0, 6.0, 4.0, 1.0],
+            vec![0.0, 0.0, 0.0, 1.0],
+        ]);
+        let r = m.submatrix(0, 2);
+        assert_eq!(
+            r,
+            Mat::new(vec![
+                vec![2.0, 4.0, 2.0],
+                vec![8.0, 6.0, 1.0],
+                vec![0.0, 0.0, 1.0],
+            ])
+        );
+    }
+
+    #[test]
+    fn test_submatri_3x3() {
+        let m = Mat::new(vec![
+            vec![2.0, 4.0, 2.0],
+            vec![8.0, 6.0, 1.0],
+            vec![0.0, 0.0, 1.0],
+        ]);
+        let r = m.submatrix(2, 1);
+        assert_eq!(r, Mat::new(vec![vec![2.0, 2.0], vec![8.0, 1.0],]));
+    }
+
+    #[test]
+    fn test_minor() {
+        let m = Mat::new(vec![
+            vec![3.0, 5.0, 0.0],
+            vec![2.0, -1.0, -7.0],
+            vec![6.0, -1.0, 5.0],
+        ]);
+
+        assert_eq!(m.minor(1, 0), 25.0);
+    }
+
+    #[test]
+    fn test_cofactor() {
+        let m = Mat::new(vec![
+            vec![3.0, 5.0, 0.0],
+            vec![2.0, -1.0, -7.0],
+            vec![6.0, -1.0, 5.0],
+        ]);
+
+        assert_eq!(m.minor(0, 0), -12.0);
+        assert_eq!(m.cofactor(0, 0), -12.0);
+        assert_eq!(m.minor(1, 0), 25.0);
+        assert_eq!(m.cofactor(1, 0), -25.0);
+    }
+
+    #[test]
+    fn test_determinant_4x4() {
+        let m = Mat::new(vec![
+            vec![-2.0, -8.0, 3.0, 5.0],
+            vec![-3.0, 1.0, 7.0, 3.0],
+            vec![1.0, 2.0, -9.0, 6.0],
+            vec![-6.0, 7.0, 7.0, -9.0],
+        ]);
+
+        assert_eq!(m.determinant(), -4071.0);
     }
 }
