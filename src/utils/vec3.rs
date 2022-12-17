@@ -1,6 +1,7 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 pub type Float = f32;
+pub const EPSILON: Float = 0.00001;
 
 #[derive(Debug, Clone)]
 pub struct Vec3 {
@@ -164,12 +165,11 @@ vec_ops!{Mul, mul, Vec3, Float }
 
 impl PartialEq for Vec3 {
     fn eq(&self, other: &Self) -> bool {
-        let ep = 0.00001;
         let x_diff = (self.x - other.x).abs();
         let y_diff = (self.y - other.y).abs();
         let z_diff = (self.z - other.z).abs();
 
-        x_diff < ep && y_diff < ep && z_diff < ep
+        x_diff < EPSILON && y_diff < EPSILON && z_diff < EPSILON
     }
 }
 
