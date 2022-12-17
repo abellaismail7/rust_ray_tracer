@@ -133,6 +133,33 @@ impl Mat {
         m.tab[2][2] = z;
         m
     }
+
+    pub fn rotation_x(r: Float) -> Self {
+        let mut m = Mat::default(4, 4).identity();
+        m.tab[1][1] = r.cos();
+        m.tab[1][2] = -r.sin();
+        m.tab[2][1] = r.sin();
+        m.tab[2][2] = r.cos();
+        m
+    }
+
+    pub fn rotation_y(r: Float) -> Self {
+        let mut m = Mat::default(4, 4).identity();
+        m.tab[0][0] = r.cos();
+        m.tab[0][2] = r.sin();
+        m.tab[2][0] = -r.sin();
+        m.tab[2][2] = r.cos();
+        m
+    }
+
+    pub fn rotation_z(r: Float) -> Self {
+        let mut m = Mat::default(4, 4).identity();
+        m.tab[0][0] = r.cos();
+        m.tab[0][1] = -r.sin();
+        m.tab[1][0] = r.sin();
+        m.tab[1][1] = r.cos();
+        m
+    }
 }
 
 impl PartialEq for Mat {
@@ -185,6 +212,8 @@ impl Mul<&Vec3> for &Mat {
 
 #[cfg(test)]
 mod tests {
+    use std::f32::consts::PI;
+
     use super::*;
 
     #[test]
@@ -357,5 +386,35 @@ mod tests {
         let p = Vec3::new(-4.0, 6.0, 8.0);
 
         assert_eq!(&t * &p, Vec3::new(-8.0, 18.0, 32.0))
+    }
+
+    #[test]
+    fn test_rotation_x() {
+        let t_quarter = Mat::rotation_x(PI / 4.0);
+        let t_half = Mat::rotation_x(PI / 2.0);
+        let p = Vec3::new(0.0, 1.0, 0.0);
+
+        assert_eq!(&t_half * &p, Vec3::new(0.0, 0.0, 1.0));
+        assert_eq!(&t_quarter * &p, Vec3::new(0.0, 2.0f32.sqrt()/2.0, 2.0f32.sqrt()/2.0));
+    }
+
+    #[test]
+    fn test_rotation_y() {
+        let t_quarter = Mat::rotation_y(PI / 4.0);
+        let t_half = Mat::rotation_y(PI / 2.0);
+        let p = Vec3::new(0.0, 0.0, 1.0);
+
+        assert_eq!(&t_half * &p, Vec3::new(1.0, 0.0, 0.0));
+        assert_eq!(&t_quarter * &p, Vec3::new(2.0f32.sqrt()/2.0, 0.0, 2.0f32.sqrt()/2.0));
+    }
+
+    #[test]
+    fn test_rotation_z() {
+        let t_quarter = Mat::rotation_z(PI / 4.0);
+        let t_half = Mat::rotation_z(PI / 2.0);
+        let p = Vec3::new(0.0, 1.0, 0.0);
+
+        assert_eq!(&t_half * &p, Vec3::new(-1.0, 0.0, 0.0));
+        assert_eq!(&t_quarter * &p, Vec3::new(2.0f32.sqrt()/-2.0, 2.0f32.sqrt()/2.0, 0.0));
     }
 }
