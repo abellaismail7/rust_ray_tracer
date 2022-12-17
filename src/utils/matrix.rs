@@ -23,6 +23,19 @@ impl Mat {
             rows,
         }
     }
+
+    pub fn identity(&self) -> Self {
+        let mut m = Self {
+            tab: vec![vec![0.0; self.cols]; self.cols],
+            rows: self.cols,
+            cols: self.cols,
+        };
+
+        for i in 0..m.rows {
+            m.tab[i][i] = 1.0;
+        }
+        m
+    }
 }
 impl PartialEq for Mat {
     fn eq(&self, other: &Self) -> bool {
