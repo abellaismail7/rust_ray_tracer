@@ -135,6 +135,9 @@ impl PartialEq for Mat {
     }
 }
 
+/*
+ * r1-c1 * r2-c2 => r1-c2 where c1 == r2
+ */
 impl Mul for &Mat {
     type Output = Mat;
 
