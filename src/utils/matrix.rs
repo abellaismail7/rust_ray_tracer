@@ -346,9 +346,9 @@ mod tests {
     #[test]
     fn test_translation() {
         let t = Mat::translation(5.0, -3.0, 2.0);
-        let v = Vec3::new(-3.0, 4.0, 5.0);
+        let p = Vec3::new(-3.0, 4.0, 5.0);
 
-        assert_eq!(&t * &v, Vec3::new(2.0, 1.0, 7.0))
+        assert_eq!(&t * &p, Vec3::new(2.0, 1.0, 7.0))
     }
 
     #[test]
