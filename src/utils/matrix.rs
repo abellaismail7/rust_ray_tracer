@@ -117,6 +117,14 @@ impl Mat {
         }
         m
     }
+
+    pub fn translation(x: Float, y: Float, z: Float) -> Self{
+        let mut m = Mat::default(4, 4).identity();
+        m.tab[0][3] = x;
+        m.tab[1][3] = y;
+        m.tab[2][3] = z;
+        m
+    }
 }
 
 impl PartialEq for Mat {
@@ -325,5 +333,13 @@ mod tests {
         ]);
 
         assert_eq!(m.inverse(), expected);
+    }
+
+    #[test]
+    fn test_translation() {
+        let t = Mat::translation(5.0, -3.0, 2.0);
+        let v = Vec3::new(-3.0, 4.0, 5.0);
+
+        assert_eq!(&t * &v, Vec3::new(2.0, 1.0, 7.0))
     }
 }
