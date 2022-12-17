@@ -36,14 +36,14 @@ impl Mat {
         m
     }
 
-    pub fn identity(&self) -> Self {
+    pub fn identity(cols: usize) -> Self {
         let mut m = Self {
-            tab: vec![vec![0.0; self.cols]; self.cols],
-            rows: self.cols,
-            cols: self.cols,
+            tab: vec![vec![0.0; cols]; cols],
+            rows: cols,
+            cols,
         };
 
-        for i in 0..m.rows {
+        for i in 0..cols {
             m.tab[i][i] = 1.0;
         }
         m
@@ -118,47 +118,66 @@ impl Mat {
         m
     }
 
-    pub fn translation(x: Float, y: Float, z: Float) -> Self{
-        let mut m = Mat::default(4, 4).identity();
+    pub fn translation(&self, x: Float, y: Float, z: Float) -> Self {
+        let mut m = Mat::identity(4);
         m.tab[0][3] = x;
         m.tab[1][3] = y;
         m.tab[2][3] = z;
-        m
+        self * &m
     }
 
-    pub fn scaling(x: Float, y: Float, z: Float) -> Self{
-        let mut m = Mat::default(4, 4).identity();
+    pub fn scaling(&self, x: Float, y: Float, z: Float) -> Self {
+        let mut m = Mat::identity(4);
         m.tab[0][0] = x;
         m.tab[1][1] = y;
         m.tab[2][2] = z;
-        m
+        self * &m
     }
 
-    pub fn rotation_x(r: Float) -> Self {
-        let mut m = Mat::default(4, 4).identity();
+    pub fn rotation_x(&self, r: Float) -> Self {
+        let mut m = Mat::identity(4);
         m.tab[1][1] = r.cos();
         m.tab[1][2] = -r.sin();
         m.tab[2][1] = r.sin();
         m.tab[2][2] = r.cos();
-        m
+        self * &m
     }
 
-    pub fn rotation_y(r: Float) -> Self {
-        let mut m = Mat::default(4, 4).identity();
+    pub fn rotation_y(&self, r: Float) -> Self {
+        let mut m = Mat::identity(4);
         m.tab[0][0] = r.cos();
         m.tab[0][2] = r.sin();
         m.tab[2][0] = -r.sin();
         m.tab[2][2] = r.cos();
-        m
+        self * &m
     }
 
-    pub fn rotation_z(r: Float) -> Self {
-        let mut m = Mat::default(4, 4).identity();
+    pub fn rotation_z(&self, r: Float) -> Self {
+        let mut m = Mat::identity(4);
         m.tab[0][0] = r.cos();
         m.tab[0][1] = -r.sin();
         m.tab[1][0] = r.sin();
         m.tab[1][1] = r.cos();
-        m
+        self * &m
+    }
+
+    pub fn shearing(
+        &self,
+        xy: Float,
+        xz: Float,
+        yx: Float,
+        yz: Float,
+        zx: Float,
+        zy: Float,
+    ) -> Self {
+        let mut m = Mat::identity(4);
+        m.tab[0][1] = xy;
+        m.tab[0][2] = xz;
+        m.tab[1][0] = yx;
+        m.tab[1][2] = yz;
+        m.tab[2][0] = zx;
+        m.tab[2][1] = zy;
+        self * &m
     }
 }
 
@@ -374,7 +393,7 @@ mod tests {
 
     #[test]
     fn test_translation() {
-        let t = Mat::translation(5.0, -3.0, 2.0);
+        let t = Mat::identity(4).translation(5.0, -3.0, 2.0);
         let p = Vec3::new(-3.0, 4.0, 5.0);
 
         assert_eq!(&t * &p, Vec3::new(2.0, 1.0, 7.0))
@@ -382,7 +401,7 @@ mod tests {
 
     #[test]
     fn test_scaling() {
-        let t = Mat::scaling(2.0, 3.0, 4.0);
+        let t = Mat::identity(4).scaling(2.0, 3.0, 4.0);
         let p = Vec3::new(-4.0, 6.0, 8.0);
 
         assert_eq!(&t * &p, Vec3::new(-8.0, 18.0, 32.0))
@@ -390,31 +409,104 @@ mod tests {
 
     #[test]
     fn test_rotation_x() {
-        let t_quarter = Mat::rotation_x(PI / 4.0);
-        let t_half = Mat::rotation_x(PI / 2.0);
+        let t_quarter = Mat::identity(4).rotation_x(PI / 4.0);
+        let t_half = Mat::identity(4).rotation_x(PI / 2.0);
         let p = Vec3::new(0.0, 1.0, 0.0);
 
         assert_eq!(&t_half * &p, Vec3::new(0.0, 0.0, 1.0));
-        assert_eq!(&t_quarter * &p, Vec3::new(0.0, 2.0f32.sqrt()/2.0, 2.0f32.sqrt()/2.0));
+        assert_eq!(
+            &t_quarter * &p,
+            Vec3::new(0.0, 2.0f32.sqrt() / 2.0, 2.0f32.sqrt() / 2.0)
+        );
     }
 
     #[test]
     fn test_rotation_y() {
-        let t_quarter = Mat::rotation_y(PI / 4.0);
-        let t_half = Mat::rotation_y(PI / 2.0);
+        let t_quarter = Mat::identity(4).rotation_y(PI / 4.0);
+        let t_half = Mat::identity(4).rotation_y(PI / 2.0);
         let p = Vec3::new(0.0, 0.0, 1.0);
 
         assert_eq!(&t_half * &p, Vec3::new(1.0, 0.0, 0.0));
-        assert_eq!(&t_quarter * &p, Vec3::new(2.0f32.sqrt()/2.0, 0.0, 2.0f32.sqrt()/2.0));
+        assert_eq!(
+            &t_quarter * &p,
+            Vec3::new(2.0f32.sqrt() / 2.0, 0.0, 2.0f32.sqrt() / 2.0)
+        );
     }
 
     #[test]
     fn test_rotation_z() {
-        let t_quarter = Mat::rotation_z(PI / 4.0);
-        let t_half = Mat::rotation_z(PI / 2.0);
+        let t_quarter = Mat::identity(4).rotation_z(PI / 4.0);
+        let t_half = Mat::identity(4).rotation_z(PI / 2.0);
         let p = Vec3::new(0.0, 1.0, 0.0);
 
         assert_eq!(&t_half * &p, Vec3::new(-1.0, 0.0, 0.0));
-        assert_eq!(&t_quarter * &p, Vec3::new(2.0f32.sqrt()/-2.0, 2.0f32.sqrt()/2.0, 0.0));
+        assert_eq!(
+            &t_quarter * &p,
+            Vec3::new(2.0f32.sqrt() / -2.0, 2.0f32.sqrt() / 2.0, 0.0)
+        );
+    }
+
+    #[test]
+    fn test_shearing_xy() {
+        let t = Mat::identity(4).shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Vec3::new(2.0, 3.0, 4.0);
+
+        assert_eq!(&t * &p, Vec3::new(5.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_xz() {
+        let t = Mat::identity(4).shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Vec3::new(2.0, 3.0, 4.0);
+
+        assert_eq!(&t * &p, Vec3::new(6.0, 3.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_yx() {
+        let t = Mat::identity(4).shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let p = Vec3::new(2.0, 3.0, 4.0);
+
+        assert_eq!(&t * &p, Vec3::new(2.0, 5.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_yz() {
+        let t = Mat::identity(4).shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let p = Vec3::new(2.0, 3.0, 4.0);
+
+        assert_eq!(&t * &p, Vec3::new(2.0, 7.0, 4.0));
+    }
+
+    #[test]
+    fn test_shearing_zx() {
+        let t = Mat::identity(4).shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let p = Vec3::new(2.0, 3.0, 4.0);
+
+        assert_eq!(&t * &p, Vec3::new(2.0, 3.0, 6.0));
+    }
+
+    #[test]
+    fn test_shearing_zy() {
+        let t = Mat::identity(4).shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let p = Vec3::new(2.0, 3.0, 4.0);
+
+        assert_eq!(&t * &p, Vec3::new(2.0, 3.0, 7.0));
+    }
+
+    #[test]
+    fn test_chain() {
+        let p = Vec3::new(1.0, 0.0, 1.0);
+        let r = &Mat::identity(4).rotation_x(PI / 2.0);
+        let s = &Mat::identity(4).scaling(5.0, 5.0, 5.0);
+        let t = &Mat::identity(4).translation(10.0, 5.0, 7.0);
+
+        let exp = Mat::identity(4)
+            .translation(10.0, 5.0, 7.0)
+            .scaling(5.0, 5.0, 5.0)
+            .rotation_x(PI / 2.0);
+
+        assert_eq!(&exp * &p, Vec3::new(15.0, 0.0, 7.0));
+        assert_eq!(&(&(t * s) * r) * &p, Vec3::new(15.0, 0.0, 7.0));
     }
 }
