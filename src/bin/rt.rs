@@ -1,14 +1,12 @@
-use scene::canvas::Canvas;
-use utils::{
-    material::Material,
-    ray::Ray,
-    vec3::{Float, Vec3},
+use minirt::{
+    scene::canvas::Canvas,
+    utils::{
+        material::Material,
+        ray::Ray,
+        vec3::{Float, Vec3},
+    },
+    world::{camera::Camera, light::Light, sphere::Sphere, w::World},
 };
-use world::{camera::Camera, light::Light, sphere::Sphere, w::World};
-
-pub mod scene;
-pub mod utils;
-pub mod world;
 
 fn lighting(m: &Material, w: &World, eye_vn: &Vec3, normal_v: &Vec3, hitp: &Vec3) -> Vec3 {
     let l = &w.lights[0];
@@ -74,7 +72,7 @@ fn main() {
     let mut canvas = Canvas::new(1000, 1000);
     let spheres = vec![
         Sphere::new(
-            Vec3::new(-3.0, -0.0, -0.0),
+            Vec3::new(-1.0, -1.0, -1.0),
             Material {
                 color: Vec3::new(0.0, 1.0, 1.0),
                 ..Material::default()
@@ -99,7 +97,7 @@ fn main() {
         canvas.height,
     );
     let lights = vec![Light::new(
-        Vec3::new(-14.0, -0.0, -0.0),
+        Vec3::new(-10.0, -10.0, -10.0),
         Vec3::from_float(1.0),
     )];
     let w = World::new(camera, lights, spheres);
