@@ -1,25 +1,26 @@
 use crate::utils::{
     material::Material,
-    vec3::{Float, Vec3}, ray::Ray,
+    matrix::Mat,
+    ray::Ray,
+    vec3::{Float, Vec3},
 };
 
 #[derive(Debug)]
 pub struct Sphere {
-    center: Vec3,
-    raduis: Float,
     pub m: Material,
+    pub t: Mat,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, m: Material, raduis: Float) -> Self {
-        Self { center, raduis, m }
+    pub fn new(m: Material, t: Mat) -> Self {
+        Self { m, t }
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<(Float, Float)> {
-        let oc = ray.org - &self.center;
-        let a: Float = ray.dir.dot(ray.dir);
-        let b2: Float = oc.dot(ray.dir);
-        let c: Float = oc.dot(&oc) - (self.raduis * self.raduis);
+    pub fn intersect(&self, oray: &Ray) -> Option<(Float, Float)> {
+        let ray = oray.transform(&self.t.inverse());
+        let a: Float = ray.dir.dot(&ray.dir);
+        let b2: Float = ray.org.dot(&ray.dir);
+        let c: Float = ray.org.dot(&ray.org) - 1.0;
 
         let d: Float = b2 * b2 - a * c;
         if d < 0.0 {
@@ -30,7 +31,11 @@ impl Sphere {
         Some((t0, t1))
     }
 
+    pub fn set_transform(&mut self, m: Mat) {
+        self.t = m;
+    }
+
     pub fn normal_at(&self, hitp: &Vec3) -> Vec3 {
-        (hitp - &self.center).norm()
+        (hitp).norm()
     }
 }

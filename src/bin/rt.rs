@@ -2,6 +2,7 @@ use minirt::{
     scene::canvas::Canvas,
     utils::{
         material::Material,
+        matrix::Mat,
         ray::Ray,
         vec3::{Float, Vec3},
     },
@@ -21,7 +22,7 @@ fn lighting(m: &Material, w: &World, eye_vn: &Vec3, normal_v: &Vec3, hitp: &Vec3
 
     let mut t = Float::INFINITY;
     let opl_dir = -&light_dir;
-    let nray = Ray::new(hitp, &opl_dir);
+    let nray = Ray::new(hitp.clone(), opl_dir);
     for s in w.spheres.iter() {
         // this will compare raw pointers
         if std::ptr::eq(&s.m, m) {
@@ -64,30 +65,30 @@ fn trace(w: &World, ray: &Ray) -> Vec3 {
         Some(s) => {
             let hitp = ray.position(t);
             let norm = s.normal_at(&hitp);
-            lighting(&s.m, w, &(-ray.dir).norm(), &norm, &hitp)
+            lighting(&s.m, w, &(-&ray.dir).norm(), &norm, &hitp)
         }
         None => bg,
     }
 }
 
 fn main() {
-    let mut canvas = Canvas::new(1000, 1000);
+    let mut canvas = Canvas::new(500, 500);
     let spheres = vec![
         Sphere::new(
-            Vec3::new(-1.0, -1.0, -1.0),
             Material {
                 color: Vec3::new(0.0, 1.0, 1.0),
                 ..Material::default()
             },
-            0.5,
+            Mat::identity(4)
+                .scaling(0.5, 0.5, 0.5)
+                .translation(-2.0, -2.0, -2.0),
         ),
         Sphere::new(
-            Vec3::new(-0.0, 0.0, -0.0),
             Material {
                 color: Vec3::new(1.0, 0.2, 1.0),
                 ..Material::default()
             },
-            1.0,
+            Mat::identity(4).translation(0.0, 0.0, 0.0),
         ),
     ];
     let camera = Camera::new(
@@ -105,8 +106,9 @@ fn main() {
     let w = World::new(camera, lights, spheres);
     canvas.for_each(|pixel, x, y| {
         let dir = w.camera.get_ray(x, y);
-        let ray = Ray::new(&w.camera.org, &dir);
+        let ray = Ray::new(w.camera.org.clone(), dir);
         let color = trace(&w, &ray);
+        print!("\r{} pixel", 1000 * y + x);
         color.apply(pixel)
     });
     canvas.export_ppm("file.ppm").ok();
