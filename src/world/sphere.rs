@@ -39,6 +39,33 @@ impl Sphere {
     }
 
     pub fn normal_at(&self, hitp: &Vec3) -> Vec3 {
-        (hitp).norm()
+        let obj_norm = (&self.inverse * hitp).norm();
+        let wrl_norm= &self.inverse.transpose() * &obj_norm;
+        (wrl_norm).norm()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::f32::consts::PI;
+
+    use super::*;
+
+    #[test]
+    fn test_normal_at_1() {
+        let f = std::f32::consts::FRAC_1_SQRT_2;
+        let sp = Sphere::new(Material::default(),
+            Mat::identity(4).translation(-0.0, 1.0, -0.0));
+        let v = sp.normal_at(&Vec3::new(0.0, 1.70711, -f));
+        assert_eq!(v, Vec3::new(0.0, f, -f));
+    }
+
+    #[test]
+    fn test_normal_at_2() {
+        let f = 2.0f32.sqrt()/ 2.0;
+        let sp = Sphere::new(Material::default(),
+            Mat::identity(4).scaling(1.0, 0.5, 1.0).rotation_z(PI/5.0));
+        let v = sp.normal_at(&Vec3::new(0.0, f, -f));
+        assert_eq!(v, Vec3::new(0.0, 0.97014, -0.24254));
     }
 }
