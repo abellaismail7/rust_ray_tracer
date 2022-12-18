@@ -30,9 +30,9 @@ impl Canvas {
         3 * y * self.width + x * 3
     }
 
-    pub fn set_color(&mut self, x: usize, y: usize, color: &Vec3) {
-        let i = self.pixel_at(x, y);
-        color.apply(&mut self.pixels[i..3]);
+    pub fn write_at(&mut self, x: usize, y: usize, color: &Vec3) {
+        let p = self.pixel_at(x, y);
+        color.apply(&mut self.pixels[p..p + 3]);
     }
 
     pub fn for_each(&mut self, f: impl Fn(&mut [u8], usize, usize)) {
