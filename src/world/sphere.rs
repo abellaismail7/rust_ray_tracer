@@ -1,6 +1,6 @@
 use crate::utils::{
     material::Material,
-    vec3::{Float, Vec3},
+    vec3::{Float, Vec3}, ray::Ray,
 };
 
 #[derive(Debug)]
@@ -15,10 +15,10 @@ impl Sphere {
         Self { center, raduis, m }
     }
 
-    pub fn intersect(&self, org: &Vec3, dir: &Vec3) -> Option<(Float, Float)> {
-        let oc = org - &self.center;
-        let a: Float = dir.dot(dir);
-        let b2: Float = oc.dot(dir);
+    pub fn intersect(&self, ray: &Ray) -> Option<(Float, Float)> {
+        let oc = ray.org - &self.center;
+        let a: Float = ray.dir.dot(ray.dir);
+        let b2: Float = oc.dot(ray.dir);
         let c: Float = oc.dot(&oc) - (self.raduis * self.raduis);
 
         let d: Float = b2 * b2 - a * c;

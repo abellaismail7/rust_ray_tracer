@@ -20,12 +20,14 @@ fn lighting(m: &Material, w: &World, eye_vn: &Vec3, normal_v: &Vec3, hitp: &Vec3
     let light_dot = light_dir.dot(normal_v);
 
     let mut t = Float::INFINITY;
+    let opl_dir = -&light_dir;
+    let nray = Ray::new(hitp, &opl_dir);
     for s in w.spheres.iter() {
         // this will compare raw pointers
         if std::ptr::eq(&s.m, m) {
             continue;
         }
-        if let Some((t0, _t1)) = s.intersect(hitp, &-&light_dir) {
+        if let Some((t0, _t1)) = s.intersect(&nray) {
             if t0 < t {
                 t = t0;
             }
@@ -51,7 +53,7 @@ fn trace(w: &World, ray: &Ray) -> Vec3 {
     let mut sphere: Option<&Sphere> = None;
     let mut t = Float::INFINITY;
     for s in w.spheres.iter() {
-        if let Some((t0, _t1)) = s.intersect(ray.org, ray.dir) {
+        if let Some((t0, _t1)) = s.intersect(ray) {
             if t0 < t {
                 sphere = Some(s);
                 t = t0;
