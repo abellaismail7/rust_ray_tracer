@@ -9,15 +9,17 @@ use crate::utils::{
 pub struct Sphere {
     pub m: Material,
     pub t: Mat,
+    pub inverse: Mat,
 }
 
 impl Sphere {
     pub fn new(m: Material, t: Mat) -> Self {
-        Self { m, t }
+        let inverse = t.inverse();
+        Self { m, t, inverse }
     }
 
     pub fn intersect(&self, oray: &Ray) -> Option<(Float, Float)> {
-        let ray = oray.transform(&self.t.inverse());
+        let ray = oray.transform(&self.inverse);
         let a: Float = ray.dir.dot(&ray.dir);
         let b2: Float = ray.org.dot(&ray.dir);
         let c: Float = ray.org.dot(&ray.org) - 1.0;
@@ -32,6 +34,7 @@ impl Sphere {
     }
 
     pub fn set_transform(&mut self, m: Mat) {
+        self.inverse = m.inverse();
         self.t = m;
     }
 

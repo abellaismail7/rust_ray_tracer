@@ -72,7 +72,7 @@ fn trace(w: &World, ray: &Ray) -> Vec3 {
 }
 
 fn main() {
-    let mut canvas = Canvas::new(500, 500);
+    let mut canvas = Canvas::new(1000, 1000);
     let spheres = vec![
         Sphere::new(
             Material {
@@ -80,15 +80,16 @@ fn main() {
                 ..Material::default()
             },
             Mat::identity(4)
-                .scaling(0.5, 0.5, 0.5)
-                .translation(-2.0, -2.0, -2.0),
+                .translation(0.0, 0.0, 0.0),
         ),
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 0.2, 1.0),
                 ..Material::default()
             },
-            Mat::identity(4).translation(0.0, 0.0, 0.0),
+            Mat::identity(4)
+                .scaling(0.5, 0.5, 0.5)
+                .translation(-2.0, 1.0, -1.0),
         ),
     ];
     let camera = Camera::new(
@@ -100,7 +101,7 @@ fn main() {
         canvas.height,
     );
     let lights = vec![Light::new(
-        Vec3::new(-10.0, -10.0, -10.0),
+        Vec3::new(-10.0, 10.0, -10.0),
         Vec3::from_float(1.0),
     )];
     let w = World::new(camera, lights, spheres);
