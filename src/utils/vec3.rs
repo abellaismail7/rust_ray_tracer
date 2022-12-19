@@ -1,7 +1,7 @@
 use std::ops::{Add, Div, Mul, Neg, Sub};
 
 pub type Float = f32;
-pub const EPSILON: Float = 0.00001;
+pub const EPSILON: Float = 0.0001;
 
 #[derive(Debug, Clone)]
 pub struct Vec3 {

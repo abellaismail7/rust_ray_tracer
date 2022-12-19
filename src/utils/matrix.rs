@@ -452,6 +452,26 @@ mod tests {
     }
 
     #[test]
+    fn test_inverse_1() {
+        let m1 = Mat::new(vec![
+            vec![1.0, 2.0, 3.0, 4.0],
+            vec![5.0, 6.0, 7.0, 8.0],
+            vec![9.0, 8.0, 7.0, 6.0],
+            vec![5.0, 4.0, 3.0, 2.0],
+        ]);
+        let m2 = Mat::new(vec![
+            vec![-2.0, 1.0, 2.0, 3.0],
+            vec![3.0, 2.0, 1.0, -1.0],
+            vec![4.0, 3.0, 6.0, 5.0],
+            vec![1.0, 2.0, 7.0, 8.0],
+        ]);
+
+        let res = &m1 * &m2;
+
+        assert_eq!(&res * &m2.inverse(), m1);
+    }
+
+    #[test]
     fn test_translation() {
         let t = Mat::identity(4).translation(5.0, -3.0, 2.0);
         let p = Vec3::new(-3.0, 4.0, 5.0);
