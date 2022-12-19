@@ -192,6 +192,19 @@ impl Mat {
         m.tab[2][1] = zy;
         self * &m
     }
+
+    pub fn view_transformation(from: &Vec3, to: &Vec3, up: &Vec3) -> Mat {
+        let forward = (to - from).norm();
+        let left = forward.cross(&up.norm());
+        let true_up = left.cross(&forward);
+        let orient = Mat::new(vec![
+            vec![left.x, left.y, left.z, 0.0],
+            vec![true_up.x, true_up.y, true_up.z, 0.0],
+            vec![-forward.x, -forward.y, -forward.z, 0.0],
+            vec![0.0, 0.0, 0.0, 1.0],
+        ]);
+        orient.translation(-from.x, -from.y, -from.z)
+    }
 }
 
 impl PartialEq for Mat {
@@ -431,6 +444,49 @@ mod tests {
         assert_eq!(&t * &p, Vec3::new(-8.0, 18.0, 32.0))
     }
 
+    // Stolen
+    #[test]
+    fn test_scaling_matrix_x_point() {
+        let transform = Mat::identity(4).scaling(2.0, 3.0, 4.0);
+        let p = Vec3::new(-4.0, 6.0, 8.0);
+        let expected = Vec3::new(-8.0, 18.0, 32.0);
+
+        let res = &transform * &p;
+        assert_eq!(res, expected);
+    }
+
+    #[test]
+    fn test_scaling_matrix_x_vec3() {
+        let transform = Mat::identity(4).scaling(2.0, 3.0, 4.0);
+        let v = Vec3::new(-4.0, 6.0, 8.0);
+        let expected = Vec3::new(-8.0, 18.0, 32.0);
+
+        let res = &transform * &v;
+        assert_eq!(res, expected);
+    }
+
+    #[test]
+    fn test_inverse_scaling_matrix_x_vec3() {
+        let transform = Mat::identity(4).scaling(2.0, 3.0, 4.0);
+        let inverse_transform = transform.inverse();
+        let v = Vec3::new(-4.0, 6.0, 8.0);
+        let expected = Vec3::new(-2.0, 2.0, 2.0);
+
+        let res = &inverse_transform * &v;
+        assert_eq!(res, expected);
+    }
+
+    #[test]
+    fn test_reflection_using_scaling_matrix() {
+        let transform = Mat::identity(4).scaling(-1.0, 1.0, 1.0);
+        let p = Vec3::new(2.0, 3.0, 4.0);
+        let expected = Vec3::new(-2.0, 3.0, 4.0);
+
+        let res = &transform * &p;
+        assert_eq!(res, expected);
+    }
+    // END of crime
+
     #[test]
     fn test_rotation_x() {
         let t_quarter = Mat::identity(4).rotation_x(PI / 4.0);
@@ -532,5 +588,33 @@ mod tests {
 
         assert_eq!(&exp * &p, Vec3::new(15.0, 0.0, 7.0));
         assert_eq!(&(&(t * s) * r) * &p, Vec3::new(15.0, 0.0, 7.0));
+    }
+
+    #[test]
+    fn test_view_tranfromation_1() {
+        let from = Vec3::new(0.0, 0.0, 0.0);
+        let to = Vec3::new(0.0, 0.0, -1.0);
+        let up = Vec3::new(0.0, 1.0, 0.0);
+        let m = Mat::view_transformation(&from, &to, &up);
+
+        assert_eq!(m, Mat::identity(4));
+    }
+
+    #[test]
+    fn test_view_tranfromation_2() {
+        let from = Vec3::new(1.0, 3.0, 2.0);
+        let to = Vec3::new(4.0, -2.0, 8.0);
+        let up = Vec3::new(1.0, 1.0, 0.0);
+        let m = Mat::view_transformation(&from, &to, &up);
+
+        assert_eq!(
+            m,
+            Mat::new(vec![
+                vec![-0.50709, 0.50709, 0.67612, -2.36643],
+                vec![0.76772, 0.60609, 0.12122, -2.82843],
+                vec![-0.35857, 0.59761, -0.71714, 0.00000],
+                vec![0.00000, 0.00000, 0.00000, 1.00000],
+            ])
+        );
     }
 }
