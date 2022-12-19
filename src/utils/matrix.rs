@@ -255,7 +255,6 @@ impl Mul<&Vec3> for &Mat {
     }
 }
 
-
 impl Mul<&Vec3> for &&Mat {
     type Output = Vec3;
 

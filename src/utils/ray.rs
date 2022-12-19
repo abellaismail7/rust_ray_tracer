@@ -23,7 +23,6 @@ impl Ray {
             dir: mm * &self.dir,
         }
     }
-
 }
 
 #[cfg(test)]
