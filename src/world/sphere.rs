@@ -21,15 +21,16 @@ impl Sphere {
     pub fn intersect(&self, oray: &Ray) -> Option<(Float, Float)> {
         let ray = oray.transform(&self.inverse);
         let a: Float = ray.dir.dot(&ray.dir);
-        let b2: Float = ray.org.dot(&ray.dir);
+        let b2: Float = ray.dir.dot(&ray.org);
         let c: Float = ray.org.dot(&ray.org) - 1.0;
 
-        let d: Float = b2 * b2 - a * c;
+        let d: Float = b2.powf(2.0) - (a * c);
         if d < 0.0 {
             return None;
         }
-        let t0: Float = (-b2 - d.sqrt()) / a;
-        let t1: Float = (-b2 + d.sqrt()) / a;
+        let d_sqrt = d.sqrt();
+        let t0 = (-b2 - d_sqrt) / a;
+        let t1 = (-b2 + d_sqrt) / a;
         Some((t0, t1))
     }
 
