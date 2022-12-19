@@ -105,8 +105,7 @@ impl Mat {
     }
 
     pub fn minor(&self, row: usize, col: usize) -> Float {
-        let sub = self.submatrix(row, col);
-        sub.determinant()
+        self.submatrix(row, col).determinant()
     }
 
     pub fn cofactor(&self, row: usize, col: usize) -> Float {
@@ -118,11 +117,11 @@ impl Mat {
     }
 
     pub fn inverse(&self) -> Self {
-        if self.determinant() == 0.0 {
+        let d = self.determinant();
+        if d == 0.0 {
             panic!("Matrix is non inversable")
         }
         let mut m = Mat::default(self.cols, self.rows);
-        let d = self.determinant();
         for i in 0..m.rows {
             for j in 0..m.cols {
                 m.tab[i][j] = self.cofactor(j, i) / d;
@@ -234,11 +233,15 @@ impl Mul for &Mat {
             panic!("invalid matrix multiplcation");
         }
         let mut m = Self::Output::default(rhs.cols, self.rows);
-        for i in 0..m.rows {
-            for j in 0..m.cols {
-                for k in 0..m.rows {
-                    m.tab[i][j] += self.tab[i][k] * rhs.tab[k][j];
-                }
+        for row in 0..m.rows {
+            for col in 0..m.cols {
+                m.tab[row][col] = self.tab[row][0] * rhs.tab[0][col]
+                    + self.tab[row][1] * rhs.tab[1][col]
+                    + self.tab[row][2] * rhs.tab[2][col]
+                    + self.tab[row][3] * rhs.tab[3][col];
+                // for k in 0..m.rows {
+                //     m.tab[i][j] += self.tab[i][k] * rhs.tab[k][j];
+                // }
             }
         }
         m
@@ -249,9 +252,23 @@ impl Mul<&Vec3> for &Mat {
     type Output = Vec3;
 
     fn mul(self, rhs: &Vec3) -> Vec3 {
-        let m1 = Mat::from_vec3(rhs, self.cols, 1.0);
-        let r = self * &m1;
-        Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
+        //let m1 = Mat::from_vec3(rhs, self.cols, 1.0);
+        //let r = self * &m1;
+        //Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
+        Self::Output::new(
+            self.tab[0][0] * rhs.x
+                + self.tab[0][1] * rhs.y
+                + self.tab[0][2] * rhs.z
+                + self.tab[0][3],
+            self.tab[1][0] * rhs.x
+                + self.tab[1][1] * rhs.y
+                + self.tab[1][2] * rhs.z
+                + self.tab[1][3],
+            self.tab[2][0] * rhs.x
+                + self.tab[2][1] * rhs.y
+                + self.tab[2][2] * rhs.z
+                + self.tab[2][3],
+        )
     }
 }
 
