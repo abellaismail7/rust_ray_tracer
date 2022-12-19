@@ -2,7 +2,12 @@ use std::f32::consts::PI;
 
 use minirt::{
     scene::canvas::Canvas,
-    utils::{material::Material, matrix::Mat, ray::Ray, vec3::Vec3},
+    utils::{
+        material::Material,
+        matrix::Mat,
+        ray::Ray,
+        vec3::{Float, Vec3},
+    },
     world::{
         camera::Camera,
         light::Light,
@@ -11,7 +16,14 @@ use minirt::{
     },
 };
 
-fn shade_hit(c: &Comp, l: &Light) -> Vec3 {
+fn is_shadow(w: &World, ray: &Ray, comp: &Comp) -> bool {
+    w.intersect(ray, Vec::new())
+        .iter()
+        .filter(|i| !std::ptr::eq(i.sp, comp.intersection.sp))
+        .any(|i| i.t < 0.0)
+}
+
+fn shade_hit(w: &World, c: &Comp, l: &Light) -> Vec3 {
     let m = &c.intersection.sp.m;
     let color = &m.color * &l.intensity;
 
@@ -22,7 +34,9 @@ fn shade_hit(c: &Comp, l: &Light) -> Vec3 {
     let light_dir = (&l.position - &c.hitp).norm();
     let light_dot = light_dir.dot(&c.normalv);
 
-    if light_dot >= 0.0 {
+    let intersected_with_light = light_dot >= 0.0;
+    let ray = Ray::new(c.hitp.clone(), (-&light_dir).norm());
+    if intersected_with_light && !is_shadow(w, &ray, c) {
         diff = &color * m.diffuse * light_dot;
 
         let reflect = (-&light_dir).reflect(&c.normalv);
@@ -36,23 +50,23 @@ fn shade_hit(c: &Comp, l: &Light) -> Vec3 {
     ambient + diff + specular
 }
 
-fn trace(w: &World, ray: &Ray) -> Vec3 {
+fn trace(world: &World, ray: &Ray) -> Vec3 {
     let bg = Vec3::new(0.0, 0.0, 0.0);
-    let intersections = Vec::with_capacity(w.spheres.len());
-    let intersections = w.intersect(ray, intersections);
-    if let Some(i) = intersections.first() {
-        let hitp = ray.position(i.t0);
-        let norm = i.sp.normal_at(&hitp);
+    let container = Vec::with_capacity(world.spheres.len());
+    let intersections = world.intersect(ray, container);
+    if let Some(nearest) = intersections.first() {
+        let hitp = ray.position(nearest.t);
+        let norm = nearest.sp.normal_at(&hitp);
         let c = Comp {
-            intersection: i,
+            intersection: nearest,
             hitp,
             normalv: norm,
             eyev: -&ray.dir,
             inside: false,
         };
         let mut color = Vec3::from_float(0.0);
-        for l in w.lights.iter() {
-            color = color + shade_hit(&c, l);
+        for light in world.lights.iter() {
+            color = color + shade_hit(world, &c, light);
         }
         return color;
     }
@@ -65,7 +79,7 @@ fn main() {
         1000,
         PI * 0.33,
         Mat::view_transformation(
-            &Vec3::new(0.0, 1.5, -5.0),
+            &Vec3::new(0.0, 1.5, -7.0),
             &Vec3::new(0.0, 1.0, 0.0),
             &Vec3::new(0.0, 1.0, 0.0),
         ),
@@ -74,8 +88,8 @@ fn main() {
     let mut canvas = Canvas::new(camera.width, camera.height);
 
     let lights = vec![
-        Light::new(Vec3::new(-10.0, 10.0, -10.0), Vec3::from_float(1.0)),
-        // Light::new(Vec3::new(-0.0, -3.0, -0.0), Vec3::from_float(1.0)),
+        Light::new(Vec3::new(-10.0, 1.0, -10.0), Vec3::from_float(1.0)),
+        //Light::new(Vec3::new(-10.5, 1.0, -10.75), Vec3::from_float(1.0)),
     ];
 
     let m = Material {
@@ -85,56 +99,61 @@ fn main() {
     };
 
     let spheres = vec![
-        // Sphere::new(
-        //     m.clone(),
-        //     Mat::identity(4).scaling(10.0, 0.01, 10.0),
-        // ),
-        // Sphere::new(
-        //     Material{
-        //         color: Vec3::new(0.0, 0.0, 1.0),
-        //         ..m
-        //     },
-        //     Mat::identity(4)
-        //         .translation(0.0, 0.0, 0.5)
-        //         .rotation_y(-PI / 4.0)
-        //         .rotation_x( PI / 2.0)
-        //         .scaling(10.0, 0.01, 14.0),
-        // ),
-        // Sphere::new(
-        //     Material{
-        //         color: Vec3::new(1.0, 0.0, 0.0),
-        //         ..m
-        //     },
-        //     Mat::identity(4)
-        //         .translation(0.0, 0.0, 5.0)
-        //         .rotation_y( PI / 4.0)
-        //         .rotation_x( PI / 2.0)
-        //         .scaling(20.0, 0.01, 17.0),
-        // ),
+        Sphere::new(m.clone(), Mat::identity(4).scaling(10.0, 0.01, 10.0)),
+        Sphere::new(
+            Material {
+                color: Vec3::new(1.0, 0.9, 0.9),
+                ..m
+            },
+            Mat::identity(4)
+                .translation(0.0, 0.0, 5.0)
+                .rotation_y(-PI / 4.0)
+                .rotation_x(PI / 2.0)
+                .scaling(10.0, 0.01, 10.0),
+        ),
+        Sphere::new(
+            Material {
+                color: Vec3::new(1.0, 0.9, 0.9),
+                ..m
+            },
+            Mat::identity(4)
+                .translation(0.0, 0.0, 5.0)
+                .rotation_y(PI / 4.0)
+                .rotation_x(PI / 2.0)
+                .scaling(10.0, 0.01, 10.0),
+        ),
         Sphere::new(
             Material {
                 color: Vec3::new(0.0, 1.0, 1.0),
+                diffuse: 0.7,
+                specular: 0.3,
                 ..Material::default()
             },
             Mat::identity(4)
                 .translation(-0.5, 1.0, 0.5)
-                .scaling(1.5, 1.5, 0.5),
+                .scaling(1.0, 0.5, 1.0),
         ),
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 0.2, 1.0),
+                diffuse: 0.7,
+                specular: 0.3,
                 ..Material::default()
             },
-            Mat::identity(4).translation(1.5, 0.5, -0.5),
+            Mat::identity(4)
+                .translation(1.5, 0.5, -0.5)
+                .scaling(0.5, 0.2, 0.5),
         ),
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 1.0, 0.0),
+                diffuse: 0.7,
+                specular: 0.3,
                 ..Material::default()
             },
             Mat::identity(4)
-                .translation(-1.5, 0.33, -0.75)
-                .scaling(0.5, 0.5, 0.5),
+                .translation(-1.5, 2.0, -0.75)
+                .scaling(0.33, 0.33, 0.33),
         ),
     ];
 

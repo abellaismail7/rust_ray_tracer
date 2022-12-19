@@ -5,11 +5,7 @@ use crate::utils::{
     vec3::{Float, Vec3},
 };
 
-use super::{
-    camera::{self, Camera},
-    light::Light,
-    sphere::Sphere,
-};
+use super::{camera::Camera, light::Light, sphere::Sphere};
 
 #[derive(Debug)]
 pub struct World {
@@ -21,8 +17,7 @@ pub struct World {
 #[derive(Debug)]
 pub struct Intersection<'a> {
     pub sp: &'a Sphere,
-    pub t0: Float,
-    pub t1: Float,
+    pub t: Float,
 }
 
 #[derive(Debug)]
@@ -89,16 +84,9 @@ impl World {
                 let p = s.intersect(ray)?;
                 Some((s, p.0, p.1))
             })
-            .map(|(s, t0, t1)| {
-                if t1 < t0 {
-                    // I don't think that's imposible
-                    Intersection { sp: s, t1, t0 }
-                } else {
-                    Intersection { sp: s, t0, t1 }
-                }
-            });
+            .flat_map(|(s, t0, t1)| [Intersection { sp: s, t: t0 }, Intersection { sp: s, t: t1 }]);
         vec.extend(iter);
-        vec.sort_by(|a, b| a.t0.partial_cmp(&b.t0).unwrap());
+        vec.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
         vec
     }
 }
@@ -113,10 +101,10 @@ mod tests {
         let r = Ray::new(Vec3::new(0.0, 0.0, -5.0), Vec3::new(0.0, 0.0, 1.0));
         let is = w.intersect(&r, Vec::new());
 
-        assert_eq!(is.len(), 2);
-        assert_eq!(is[0].t0, 4.0);
-        assert_eq!(is[0].t1, 6.0);
-        assert_eq!(is[1].t0, 4.5);
-        assert_eq!(is[1].t1, 5.5);
+        assert_eq!(is.len(), 4);
+        assert_eq!(is[0].t, 4.0);
+        assert_eq!(is[1].t, 4.5);
+        assert_eq!(is[2].t, 5.5);
+        assert_eq!(is[3].t, 6.0);
     }
 }
