@@ -1,6 +1,6 @@
 use super::vec3::{Float, Vec3};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Material {
     pub color: Vec3,
     pub ambient: Float,

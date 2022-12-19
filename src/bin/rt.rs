@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use minirt::{
     scene::canvas::Canvas,
     utils::{material::Material, matrix::Mat, ray::Ray, vec3::Vec3},
@@ -58,39 +60,87 @@ fn trace(w: &World, ray: &Ray) -> Vec3 {
 }
 
 fn main() {
-    let mut canvas = Canvas::new(1000, 1000);
+    let camera = Camera::new(
+        1000,
+        1000,
+        90.0,
+        Mat::view_transformation(
+            &Vec3::new(0.0, 1.5, -5.0),
+            &Vec3::new(0.0, 1.0, 0.0),
+            &Vec3::new(0.0, 1.0, 0.0),
+        ),
+    );
+
+    let mut canvas = Canvas::new(camera.width, camera.height);
+
+    let lights = vec![
+        Light::new(Vec3::new(-10.0, 10.0, -10.0), Vec3::from_float(1.0)),
+        // Light::new(Vec3::new(-0.0, -3.0, -0.0), Vec3::from_float(1.0)),
+    ];
+
+    let m = Material {
+        color: Vec3::new(1.0, 0.9, 0.9),
+        specular: 0.0,
+        ..Material::default()
+    };
+
     let spheres = vec![
+        // Sphere::new(
+        //     m.clone(),
+        //     Mat::identity(4).scaling(10.0, 0.01, 10.0),
+        // ),
+        // Sphere::new(
+        //     Material{
+        //         color: Vec3::new(0.0, 0.0, 1.0),
+        //         ..m
+        //     },
+        //     Mat::identity(4)
+        //         .translation(0.0, 0.0, 0.5)
+        //         .rotation_y(-PI / 4.0)
+        //         .rotation_x( PI / 2.0)
+        //         .scaling(10.0, 0.01, 14.0),
+        // ),
+        // Sphere::new(
+        //     Material{
+        //         color: Vec3::new(1.0, 0.0, 0.0),
+        //         ..m
+        //     },
+        //     Mat::identity(4)
+        //         .translation(0.0, 0.0, 5.0)
+        //         .rotation_y( PI / 4.0)
+        //         .rotation_x( PI / 2.0)
+        //         .scaling(20.0, 0.01, 17.0),
+        // ),
         Sphere::new(
             Material {
                 color: Vec3::new(0.0, 1.0, 1.0),
                 ..Material::default()
             },
-            Mat::identity(4).translation(0.0, 0.0, 0.0),
+            Mat::identity(4)
+                .translation(-0.5, 1.0, 0.5)
+                .scaling(1.5, 1.5, 0.5),
         ),
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 0.2, 1.0),
                 ..Material::default()
             },
-            Mat::identity(4).translation(-2.0, 1.0, -1.0),
+            Mat::identity(4).translation(1.5, 0.5, -0.5),
+        ),
+        Sphere::new(
+            Material {
+                color: Vec3::new(1.0, 1.0, 0.0),
+                ..Material::default()
+            },
+            Mat::identity(4)
+                .translation(-1.5, 0.33, -0.75)
+                .scaling(0.5, 0.5, 0.5),
         ),
     ];
-    let camera = Camera::new(
-        Vec3::new(0.0, 0.0, -15.0),
-        Vec3::new(0.0, 0.0, 1.0).norm(),
-        Vec3::new(0.0, 1.0, 0.0),
-        45.0,
-        canvas.width,
-        canvas.height,
-    );
-    let lights = vec![
-        Light::new(Vec3::new(-10.0, 10.0, -10.0), Vec3::from_float(1.0)),
-        Light::new(Vec3::new(-0.0, -3.0, -0.0), Vec3::from_float(1.0)),
-    ];
+
     let w = World::new(camera, lights, spheres);
     canvas.for_each(|pixel, x, y| {
-        let dir = w.camera.get_ray(x, y);
-        let ray = Ray::new(w.camera.org.clone(), dir);
+        let ray = w.camera.get_ray(x, y);
         let color = trace(&w, &ray);
         print!("\r{} pixel", 1000 * y + x);
         color.apply(pixel)
