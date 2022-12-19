@@ -21,9 +21,9 @@ impl Vec3 {
 
     pub fn cross(&self, other: &Vec3) -> Self {
         Self {
-            x: self.y * other.z + self.z * other.y,
-            y: self.x * other.z + self.z * other.x,
-            z: self.x * other.y + self.y * other.x,
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
         }
     }
 
@@ -304,12 +304,32 @@ mod tests {
     }
 
     #[test]
-    fn test_cross_vec3_vec3() {
+    fn test_cross_vec3_vec3_1() {
         let v1 = Vec3::new(1.0, 0.0, 0.0);
         let v2 = Vec3::new(0.0, 1.0, 0.0);
 
         let res = v1.cross(&v2);
         assert_eq!(res, Vec3::new(0.0, 0.0, 1.0));
+    }
+
+    #[test]
+    fn test_cross_vec3_vec3_2() {
+        let v1 = Vec3::new(1.0, 2.0, 3.0);
+        let v2 = Vec3::new(2.0, 3.0, 4.0);
+
+        let res = v1.cross(&v2);
+
+        assert_eq!(res, Vec3::new(-1.0, 2.0, -1.0));
+    }
+
+    #[test]
+    fn test_cross_vec3_vec3_3() {
+        let v1 = Vec3::new(1.0, 2.0, 3.0);
+        let v2 = Vec3::new(2.0, 3.0, 4.0);
+
+        let res = v2.cross(&v1);
+
+        assert_eq!(res, Vec3::new(1.0, -2.0, 1.0));
     }
 
     #[test]
