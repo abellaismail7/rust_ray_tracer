@@ -25,6 +25,7 @@ pub struct Comp<'a> {
     pub intersection: &'a Intersection<'a>,
     pub hitp: Vec3,
     pub normalv: Vec3,
+    pub reflectv: Vec3,
     pub eyev: Vec3,
     pub inside: bool,
 }

@@ -6,6 +6,7 @@ pub struct Material {
     pub ambient: Float,
     pub diffuse: Float,
     pub specular: Float,
+    pub reflective: Float,
     pub shininess: Float,
 }
 
@@ -16,6 +17,7 @@ impl Material {
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
+            reflective: 0.0,
             shininess: 200.0,
         }
     }

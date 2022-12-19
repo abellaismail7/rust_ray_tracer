@@ -6,7 +6,7 @@ use minirt::{
         material::Material,
         matrix::Mat,
         ray::Ray,
-        vec3::{Float, Vec3},
+        vec3::Vec3,
     },
     world::{
         camera::Camera,
@@ -50,8 +50,11 @@ fn shade_hit(w: &World, c: &Comp, l: &Light) -> Vec3 {
     ambient + diff + specular
 }
 
-fn trace(world: &World, ray: &Ray) -> Vec3 {
-    let bg = Vec3::new(0.0, 0.0, 0.0);
+fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
+    let bg = Vec3::zero();
+    if depth > 10 {
+        return bg;
+    }
     let container = Vec::with_capacity(world.spheres.len());
     let intersections = world.intersect(ray, container);
     if let Some(nearest) = intersections.first() {
@@ -59,12 +62,16 @@ fn trace(world: &World, ray: &Ray) -> Vec3 {
         let norm = nearest.sp.normal_at(&hitp);
         let c = Comp {
             intersection: nearest,
+            reflectv: -&ray.dir.reflect(&norm).norm(),
             hitp,
             normalv: norm,
             eyev: -&ray.dir,
             inside: false,
         };
         let mut color = Vec3::from_float(0.0);
+        if nearest.sp.m.reflective > 0.0 {
+            color = trace(world, &Ray::new(c.hitp.clone(), c.reflectv.clone() ), depth + 1) * nearest.sp.m.reflective;
+        }
         for light in world.lights.iter() {
             color = color + shade_hit(world, &c, light);
         }
@@ -79,7 +86,7 @@ fn main() {
         1000,
         PI * 0.33,
         Mat::view_transformation(
-            &Vec3::new(0.0, 1.5, -7.0),
+            &Vec3::new(0.0, 1.5, -5.0),
             &Vec3::new(0.0, 1.0, 0.0),
             &Vec3::new(0.0, 1.0, 0.0),
         ),
@@ -88,7 +95,7 @@ fn main() {
     let mut canvas = Canvas::new(camera.width, camera.height);
 
     let lights = vec![
-        Light::new(Vec3::new(-10.0, 1.0, -10.0), Vec3::from_float(1.0)),
+        Light::new(Vec3::new(-10.0, 10.0, -10.0), Vec3::from_float(1.0)),
         //Light::new(Vec3::new(-10.5, 1.0, -10.75), Vec3::from_float(1.0)),
     ];
 
@@ -99,45 +106,44 @@ fn main() {
     };
 
     let spheres = vec![
-        Sphere::new(m.clone(), Mat::identity(4).scaling(10.0, 0.01, 10.0)),
-        Sphere::new(
-            Material {
-                color: Vec3::new(1.0, 0.9, 0.9),
-                ..m
-            },
-            Mat::identity(4)
-                .translation(0.0, 0.0, 5.0)
-                .rotation_y(-PI / 4.0)
-                .rotation_x(PI / 2.0)
-                .scaling(10.0, 0.01, 10.0),
-        ),
-        Sphere::new(
-            Material {
-                color: Vec3::new(1.0, 0.9, 0.9),
-                ..m
-            },
-            Mat::identity(4)
-                .translation(0.0, 0.0, 5.0)
-                .rotation_y(PI / 4.0)
-                .rotation_x(PI / 2.0)
-                .scaling(10.0, 0.01, 10.0),
-        ),
+        //Sphere::new(m.clone(), Mat::identity(4).scaling(10.0, 0.01, 10.0)),
+        //Sphere::new(
+        //    Material {
+        //        color: Vec3::new(1.0, 0.9, 0.9),
+        //        ..m
+        //    },
+        //    Mat::identity(4)
+        //        .translation(0.0, 0.0, 5.0)
+        //        .rotation_y(-PI / 4.0)
+        //        .rotation_x(PI / 2.0)
+        //        .scaling(10.0, 0.01, 10.0),
+        //),
+        //Sphere::new(
+        //    Material {
+        //        color: Vec3::new(1.0, 0.9, 0.9),
+        //        ..m
+        //    },
+        //    Mat::identity(4)
+        //        .translation(0.0, 0.0, 5.0)
+        //        .rotation_y(PI / 4.0)
+        //        .rotation_x(PI / 2.0)
+        //        .scaling(10.0, 0.01, 10.0),
+        //),
         Sphere::new(
             Material {
                 color: Vec3::new(0.0, 1.0, 1.0),
-                diffuse: 0.7,
-                specular: 0.3,
+                diffuse: 1.0,
+                reflective: 0.5,
                 ..Material::default()
             },
             Mat::identity(4)
                 .translation(-0.5, 1.0, 0.5)
-                .scaling(1.0, 0.5, 1.0),
+                .scaling(1.0, 1.0, 1.0),
         ),
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 0.2, 1.0),
-                diffuse: 0.7,
-                specular: 0.3,
+                diffuse: 1.0,
                 ..Material::default()
             },
             Mat::identity(4)
@@ -147,12 +153,11 @@ fn main() {
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 1.0, 0.0),
-                diffuse: 0.7,
-                specular: 0.3,
+                diffuse: 1.0,
                 ..Material::default()
             },
             Mat::identity(4)
-                .translation(-1.5, 2.0, -0.75)
+                .translation(-1.5, 1.0, -0.5)
                 .scaling(0.33, 0.33, 0.33),
         ),
     ];
@@ -160,7 +165,7 @@ fn main() {
     let w = World::new(camera, lights, spheres);
     canvas.for_each(|pixel, x, y| {
         let ray = w.camera.get_ray(x, y);
-        let color = trace(&w, &ray);
+        let color = trace(&w, &ray, 0);
         print!("\r{} pixel", 1000 * y + x);
         color.apply(pixel)
     });
