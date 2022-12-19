@@ -63,7 +63,7 @@ fn main() {
     let camera = Camera::new(
         1000,
         1000,
-        90.0,
+        PI * 0.33,
         Mat::view_transformation(
             &Vec3::new(0.0, 1.5, -5.0),
             &Vec3::new(0.0, 1.0, 0.0),

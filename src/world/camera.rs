@@ -18,7 +18,7 @@ pub struct Camera {
 impl Camera {
     pub fn new(width: usize, height: usize, fov: Float, t: Mat) -> Self {
         let ar = width as Float / (height as Float);
-        let angle = (fov.to_radians() * 0.5).tan();
+        let angle = (fov * 0.5).tan();
         Self {
             width,
             height,
