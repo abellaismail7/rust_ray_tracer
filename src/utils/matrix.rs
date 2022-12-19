@@ -37,9 +37,9 @@ impl Mat {
         }
     }
 
-    pub fn from_vec3(v3: &Vec3, rows: usize) -> Self {
+    pub fn from_vec3(v3: &Vec3, rows: usize, def: Float) -> Self {
         let mut m = Self {
-            tab: vec![vec![1.0; 1]; rows],
+            tab: vec![vec![def; 1]; rows],
             cols: 1,
             rows,
         };
@@ -236,8 +236,19 @@ impl Mul<&Vec3> for &Mat {
     type Output = Vec3;
 
     fn mul(self, rhs: &Vec3) -> Vec3 {
-        let m1 = Mat::from_vec3(rhs, self.cols);
+        let m1 = Mat::from_vec3(rhs, self.cols, 1.0);
         let r = self * &m1;
+        Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
+    }
+}
+
+
+impl Mul<&Vec3> for &&Mat {
+    type Output = Vec3;
+
+    fn mul(self, rhs: &Vec3) -> Vec3 {
+        let m1 = Mat::from_vec3(rhs, self.cols, 0.0);
+        let r = *self * &m1;
         Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
     }
 }

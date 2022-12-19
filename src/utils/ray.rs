@@ -16,13 +16,14 @@ impl Ray {
         &self.org + &self.dir * t
     }
 
-    pub fn transform(&self, m: &Mat) -> Ray {
-        Ray::new(m * &self.org, self.dir.clone())
+    pub fn transform(&self, m: &Mat) -> Self {
+        let mm = &m; // this a tar9i3 til I could work arround it
+        Self {
+            org: m * &self.org,
+            dir: mm * &self.dir,
+        }
     }
 
-    pub fn transform_ref(&mut self, m: &Mat) {
-        self.org = m * &self.org;
-    }
 }
 
 #[cfg(test)]
@@ -53,11 +54,21 @@ mod tests {
     }
 
     #[test]
-    fn test_transform() {
-        let mut r1 = Ray::new(Vec3::new(1.0, 2.0, 3.0), Vec3::from_float(1.0));
-        let r2 = Ray::new(Vec3::new(4.0, 6.0, 8.0), r1.dir.clone());
+    fn test_transform_1() {
+        let r1 = Ray::new(Vec3::new(1.0, 2.0, 3.0), Vec3::new(0.0, 1.0, 0.0));
+        let r2 = Ray::new(Vec3::new(4.0, 6.0, 8.0), Vec3::new(0.0, 1.0, 0.0));
         let t = Mat::identity(4).translation(3.0, 4.0, 5.0);
-        r1.transform_ref(&t);
+        let r1 = r1.transform(&t);
+
+        assert_eq!(r1, r2);
+    }
+
+    #[test]
+    fn test_transform_2() {
+        let r1 = Ray::new(Vec3::new(1.0, 2.0, 3.0), Vec3::new(0.0, 1.0, 0.0));
+        let r2 = Ray::new(Vec3::new(2.0, 6.0, 12.0), Vec3::new(0.0, 3.0, 0.0));
+        let t = Mat::identity(4).scaling(2.0, 3.0, 4.0);
+        let r1 = r1.transform(&t);
 
         assert_eq!(r1, r2);
     }
