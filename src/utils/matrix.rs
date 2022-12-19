@@ -2,11 +2,24 @@ use core::ops::Mul;
 
 use super::vec3::{Float, Vec3, EPSILON};
 
-#[derive(Debug)]
+#[derive()]
 pub struct Mat {
     pub tab: Vec<Vec<Float>>,
     pub rows: usize,
     pub cols: usize,
+}
+
+impl std::fmt::Debug for Mat {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let s = self
+            .tab
+            .iter()
+            .map(|v| format!("\t{:?}", v))
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        write!(fmt, "Matrix{}x{}[\n{}\n]", self.rows, self.cols, s)
+    }
 }
 
 impl Mat {
