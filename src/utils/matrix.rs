@@ -1,4 +1,5 @@
 use core::ops::Mul;
+use std::ops::BitXor;
 
 use super::vec3::{Float, Vec3, EPSILON};
 
@@ -272,13 +273,19 @@ impl Mul<&Vec3> for &Mat {
     }
 }
 
-impl Mul<&Vec3> for &&Mat {
+#[allow(clippy::suspicious_arithmetic_impl)]
+impl BitXor<&Vec3> for &Mat {
     type Output = Vec3;
 
-    fn mul(self, rhs: &Vec3) -> Vec3 {
-        let m1 = Mat::from_vec3(rhs, self.cols, 0.0);
-        let r = *self * &m1;
-        Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
+    fn bitxor(self, rhs: &Vec3) -> Vec3 {
+        // let m1 = Mat::from_vec3(rhs, self.cols, 0.0);
+        // let r = self * &m1;
+        // Vec3::new(r.tab[0][0], r.tab[1][0], r.tab[2][0])
+        Self::Output::new(
+            self.tab[0][0] * rhs.x + self.tab[0][1] * rhs.y + self.tab[0][2] * rhs.z,
+            self.tab[1][0] * rhs.x + self.tab[1][1] * rhs.y + self.tab[1][2] * rhs.z,
+            self.tab[2][0] * rhs.x + self.tab[2][1] * rhs.y + self.tab[2][2] * rhs.z,
+        )
     }
 }
 

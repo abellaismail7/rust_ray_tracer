@@ -17,10 +17,9 @@ impl Ray {
     }
 
     pub fn transform(&self, m: &Mat) -> Self {
-        let mm = &m; // this a tar9i3 til I could work arround it
         Self {
             org: m * &self.org,
-            dir: mm * &self.dir,
+            dir: m ^ &self.dir,
         }
     }
 }
