@@ -1,11 +1,11 @@
 use crate::utils::{
-    material::Material,
+    material::IMaterial,
     matrix::Mat,
     ray::Ray,
     vec3::{Float, Vec3},
 };
 
-use super::{camera::Camera, light::Light, sphere::Sphere};
+use super::{camera::Camera, light::Light, shape::Shape, sphere::Sphere, transform::Transformable};
 
 #[derive(Debug)]
 pub struct World {
@@ -52,7 +52,6 @@ impl World {
 }
 
 impl Default for World {
-
     fn default() -> Self {
         let camera = Camera::new(1000, 1000, 45.0, Mat::identity(4));
         let lights = vec![Light::new(
@@ -60,21 +59,11 @@ impl Default for World {
             Vec3::new(1.0, 1.0, 1.0),
         )];
         let spheres = vec![
-            Sphere::new(
-                Material {
-                    color: Vec3::new(0.8, 1.0, 0.6),
-                    diffuse: 0.7,
-                    specular: 0.2,
-                    ..Material::default()
-                },
-                Mat::identity(4),
-            ),
-            Sphere::new(
-                Material {
-                    ..Material::default()
-                },
-                Mat::identity(4).scaling(0.5, 0.5, 0.5),
-            ),
+            Sphere::default()
+                .color(0.8, 1.0, 0.6)
+                .diffuse(0.7)
+                .specular(0.5),
+            Sphere::default().scaling(0.5, 0.5, 0.5),
         ];
 
         World {

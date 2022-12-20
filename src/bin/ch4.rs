@@ -1,6 +1,7 @@
 use minirt::{
     scene::canvas::Canvas,
     utils::{matrix::Mat, vec3::Vec3},
+    world::transform::Transformable,
 };
 use std::f32::consts::PI;
 

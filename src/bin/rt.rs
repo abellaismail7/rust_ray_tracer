@@ -2,8 +2,8 @@ use std::f32::consts::PI;
 
 use minirt::{
     scene::canvas::Canvas,
-    utils::{comp::Comp, material::Material, matrix::Mat, ray::Ray, vec3::Vec3},
-    world::{camera::Camera, light::Light, sphere::Sphere, w::World},
+    utils::{comp::Comp, material::IMaterial, matrix::Mat, ray::Ray, vec3::Vec3},
+    world::{camera::Camera, light::Light, sphere::Sphere, transform::Transformable, w::World},
 };
 
 fn is_shadow(w: &World, ray: &Ray, comp: &Comp) -> bool {
@@ -83,73 +83,28 @@ fn main() {
     let mut canvas = Canvas::new(camera.width, camera.height);
 
     let lights = vec![
-        Light::new(Vec3::new(-10.0, 10.0, -10.0), Vec3::from_float(1.0)),
+        Light::new(Vec3::new(-10.0, 10.0, -10.0), Vec3::new(1.0, 0.0, 1.0)),
         //Light::new(Vec3::new(-10.5, 1.0, -10.75), Vec3::from_float(1.0)),
     ];
 
-    // let m = Material {
-    //     color: Vec3::new(1.0, 0.9, 0.9),
-    //     specular: 0.0,
-    //     ..Material::default()
-    // };
-
     let spheres = vec![
-        //Sphere::new(m.clone(), Mat::identity(4).scaling(10.0, 0.01, 10.0)),
-        //Sphere::new(
-        //    Material {
-        //        color: Vec3::new(1.0, 0.9, 0.9),
-        //        ..m
-        //    },
-        //    Mat::identity(4)
-        //        .translation(0.0, 0.0, 5.0)
-        //        .rotation_y(-PI / 4.0)
-        //        .rotation_x(PI / 2.0)
-        //        .scaling(10.0, 0.01, 10.0),
-        //),
-        //Sphere::new(
-        //    Material {
-        //        color: Vec3::new(1.0, 0.9, 0.9),
-        //        ..m
-        //    },
-        //    Mat::identity(4)
-        //        .translation(0.0, 0.0, 5.0)
-        //        .rotation_y(PI / 4.0)
-        //        .rotation_x(PI / 2.0)
-        //        .scaling(10.0, 0.01, 10.0),
-        //),
-        Sphere::new(
-            Material {
-                color: Vec3::new(0.0, 1.0, 1.0),
-                diffuse: 0.7,
-                reflective: 0.5,
-                ..Material::default()
-            },
-            Mat::identity(4)
-                .translation(-0.5, 1.0, 0.5)
-                .scaling(1.0, 1.0, 1.0),
-        ),
-        Sphere::new(
-            Material {
-                color: Vec3::new(1.0, 0.2, 1.0),
-                diffuse: 0.7,
-                ..Material::default()
-            },
-            Mat::identity(4)
-                .translation(0.5, -0.0, -0.5)
-                //.translation(-1.5, 1.0, -0.5)
-                .scaling(0.5, 0.2, 0.5),
-        ),
-        Sphere::new(
-            Material {
-                color: Vec3::new(1.0, 1.0, 0.0),
-                diffuse: 0.7,
-                specular: 1.0,
-                ..Material::default()
-            },
-            Mat::identity(4)
-                .translation(-1.5, 1.0, -0.5)
-                .scaling(0.33, 0.33, 0.33),
-        ),
+        Sphere::default()
+            .color(0.0, 1.0, 1.0)
+            .diffuse(0.7)
+            .reflective(0.5)
+            .translation(-0.5, 1.0, 0.5)
+            .scaling(1.0, 1.0, 1.0),
+        Sphere::default()
+            .color(1.0, 0.2, 1.0)
+            .diffuse(0.7)
+            .translation(0.5, -0.0, -0.5)
+            .scaling(0.5, 0.2, 0.5),
+        Sphere::default()
+            .color(1.0, 1.0, 0.0)
+            .diffuse(0.7)
+            .specular(1.0)
+            .translation(-1.5, 1.0, -0.5)
+            .scaling(0.33, 0.33, 0.33),
     ];
 
     let w = World::new(camera, lights, spheres);

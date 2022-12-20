@@ -1,3 +1,5 @@
+use crate::world::shape::Shape;
+
 use super::vec3::{Float, Vec3};
 
 #[derive(Debug, Clone)]
@@ -21,4 +23,38 @@ impl Default for Material {
             shininess: 200.0,
         }
     }
+}
+
+pub trait IMaterial: Sized + Shape {
+    fn color(mut self, x: Float, y: Float, z: Float) -> Self {
+        self.get_material().color.set_scalar(x, y, z);
+        self
+    }
+
+    fn diffuse(mut self, f: Float) -> Self {
+        self.get_material().diffuse = f;
+        self
+    }
+
+    fn specular(mut self, f: Float) -> Self {
+        self.get_material().specular = f;
+        self
+    }
+
+    fn ambient(mut self, f: Float) -> Self {
+        self.get_material().ambient = f;
+        self
+    }
+
+    fn reflective(mut self, f: Float) -> Self {
+        self.get_material().reflective = f;
+        self
+    }
+
+    fn shininess(mut self, f: Float) -> Self {
+        self.get_material().shininess = f;
+        self
+    }
+
+    fn get_material(&mut self) -> &mut Material;
 }

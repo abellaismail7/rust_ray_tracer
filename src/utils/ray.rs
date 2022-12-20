@@ -27,7 +27,7 @@ impl Ray {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::utils::vec3::Vec3;
+    use crate::{utils::vec3::Vec3, world::transform::Transformable};
 
     #[test]
     fn test_new() {
