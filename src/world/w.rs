@@ -29,7 +29,31 @@ impl World {
         }
     }
 
-    pub fn default() -> Self {
+    pub fn intersect<'a, 'b>(
+        &'a self,
+        ray: &Ray,
+        mut vec: Vec<Intersection<'b>>,
+    ) -> Vec<Intersection<'b>>
+    where
+        'a: 'b,
+    {
+        let iter = self
+            .spheres
+            .iter()
+            .filter_map(|s| {
+                let p = s.intersect(ray)?;
+                Some((s, p.0, p.1))
+            })
+            .flat_map(|(s, t0, t1)| [Intersection { sp: s, t: t0 }, Intersection { sp: s, t: t1 }]);
+        vec.extend(iter);
+        vec.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+        vec
+    }
+}
+
+impl Default for World {
+
+    fn default() -> Self {
         let camera = Camera::new(1000, 1000, 45.0, Mat::identity(4));
         let lights = vec![Light::new(
             Vec3::new(-10.0, 10.0, -10.0),
@@ -58,27 +82,6 @@ impl World {
             lights,
             spheres,
         }
-    }
-
-    pub fn intersect<'a, 'b>(
-        &'a self,
-        ray: &Ray,
-        mut vec: Vec<Intersection<'b>>,
-    ) -> Vec<Intersection<'b>>
-    where
-        'a: 'b,
-    {
-        let iter = self
-            .spheres
-            .iter()
-            .filter_map(|s| {
-                let p = s.intersect(ray)?;
-                Some((s, p.0, p.1))
-            })
-            .flat_map(|(s, t0, t1)| [Intersection { sp: s, t: t0 }, Intersection { sp: s, t: t1 }]);
-        vec.extend(iter);
-        vec.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
-        vec
     }
 }
 

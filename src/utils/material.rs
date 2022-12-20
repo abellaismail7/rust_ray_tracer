@@ -10,8 +10,8 @@ pub struct Material {
     pub shininess: Float,
 }
 
-impl Material {
-    pub fn default() -> Self {
+impl Default for Material {
+    fn default() -> Self {
         Self {
             color: Vec3::from_float(1.0),
             ambient: 0.1,
