@@ -1,4 +1,4 @@
-use crate::world::w::Intersection;
+use crate::world::{shape::Shape, w::Intersection};
 
 use super::{ray::Ray, vec3::Vec3};
 
@@ -15,11 +15,11 @@ pub struct Comp<'a> {
 impl<'a> Comp<'a> {
     pub fn prepare_comp(ray: &Ray, nearest: &'a Intersection) -> Comp<'a> {
         let hitp = ray.position(nearest.t);
-        let norm = nearest.sp.normal_at(&hitp);
+        let normalv = nearest.sp.normal_at(&hitp);
         Self {
             intersection: nearest,
-            reflectv: -&ray.dir.reflect(&norm),
-            normalv: nearest.sp.normal_at(&hitp),
+            reflectv: -&ray.dir.reflect(&normalv),
+            normalv,
             hitp,
             eyev: -&ray.dir,
             inside: false,
