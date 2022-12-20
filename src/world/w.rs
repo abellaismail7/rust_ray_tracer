@@ -20,16 +20,6 @@ pub struct Intersection<'a> {
     pub t: Float,
 }
 
-#[derive(Debug)]
-pub struct Comp<'a> {
-    pub intersection: &'a Intersection<'a>,
-    pub hitp: Vec3,
-    pub normalv: Vec3,
-    pub reflectv: Vec3,
-    pub eyev: Vec3,
-    pub inside: bool,
-}
-
 impl World {
     pub fn new(camera: Camera, lights: Vec<Light>, spheres: Vec<Sphere>) -> Self {
         Self {

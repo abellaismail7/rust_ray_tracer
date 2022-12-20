@@ -2,18 +2,8 @@ use std::f32::consts::PI;
 
 use minirt::{
     scene::canvas::Canvas,
-    utils::{
-        material::Material,
-        matrix::Mat,
-        ray::Ray,
-        vec3::Vec3,
-    },
-    world::{
-        camera::Camera,
-        light::Light,
-        sphere::Sphere,
-        w::{Comp, World},
-    },
+    utils::{comp::Comp, material::Material, matrix::Mat, ray::Ray, vec3::Vec3},
+    world::{camera::Camera, light::Light, sphere::Sphere, w::World},
 };
 
 fn is_shadow(w: &World, ray: &Ray, comp: &Comp) -> bool {
@@ -23,31 +13,41 @@ fn is_shadow(w: &World, ray: &Ray, comp: &Comp) -> bool {
         .any(|i| i.t < 0.0)
 }
 
-fn shade_hit(w: &World, c: &Comp, l: &Light) -> Vec3 {
+fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
+    let mut specular = Vec3::zero();
+    let mut diff = Vec3::zero();
+
     let m = &c.intersection.sp.m;
-    let color = &m.color * &l.intensity;
-
-    let ambient = &color * m.ambient;
-    let mut specular = Vec3::from_float(0.0);
-    let mut diff = Vec3::from_float(0.0);
-
-    let light_dir = (&l.position - &c.hitp).norm();
-    let light_dot = light_dir.dot(&c.normalv);
+    let color = &m.color * &light.intensity;
+    let ray = light.ray_at(&c.hitp);
+    let light_dot = (-&ray.dir).dot(&c.normalv);
 
     let intersected_with_light = light_dot >= 0.0;
-    let ray = Ray::new(c.hitp.clone(), (-&light_dir).norm());
     if intersected_with_light && !is_shadow(w, &ray, c) {
         diff = &color * m.diffuse * light_dot;
 
-        let reflect = (-&light_dir).reflect(&c.normalv);
+        let reflect = ray.dir.reflect(&c.normalv);
         let reflect_dot = reflect.dot(&c.eyev);
 
         if reflect_dot > 0.0 {
             let factor = reflect_dot.powf(m.shininess);
-            specular = &l.intensity * m.specular * factor;
+            specular = &light.intensity * m.specular * factor;
         }
     }
-    ambient + diff + specular
+    (&color * m.ambient) + diff + specular
+}
+
+fn reflected_color(world: &World, comp: &Comp, depth: usize) -> Vec3 {
+    let nearest = comp.intersection;
+    if nearest.sp.m.reflective > 0.0 && depth < 10 {
+        trace(
+            world,
+            &Ray::new(comp.hitp.clone(), comp.reflectv.clone()),
+            depth + 1,
+        ) * nearest.sp.m.reflective
+    } else {
+        Vec3::zero()
+    }
 }
 
 fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
@@ -58,24 +58,12 @@ fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
     let container = Vec::with_capacity(world.spheres.len());
     let intersections = world.intersect(ray, container);
     if let Some(nearest) = intersections.first() {
-        let hitp = ray.position(nearest.t);
-        let norm = nearest.sp.normal_at(&hitp);
-        let c = Comp {
-            intersection: nearest,
-            reflectv: -&ray.dir.reflect(&norm).norm(),
-            hitp,
-            normalv: norm,
-            eyev: -&ray.dir,
-            inside: false,
-        };
-        let mut color = Vec3::from_float(0.0);
-        if nearest.sp.m.reflective > 0.0 {
-            color = trace(world, &Ray::new(c.hitp.clone(), c.reflectv.clone() ), depth + 1) * nearest.sp.m.reflective;
-        }
+        let comps = Comp::prepare_comp(ray, nearest);
+        let mut surface = reflected_color(world, &comps, depth);
         for light in world.lights.iter() {
-            color = color + shade_hit(world, &c, light);
+            surface = surface + shade_hit(world, &comps, light);
         }
-        return color;
+        return surface;
     }
     bg
 }
@@ -99,11 +87,11 @@ fn main() {
         //Light::new(Vec3::new(-10.5, 1.0, -10.75), Vec3::from_float(1.0)),
     ];
 
-    let m = Material {
-        color: Vec3::new(1.0, 0.9, 0.9),
-        specular: 0.0,
-        ..Material::default()
-    };
+    // let m = Material {
+    //     color: Vec3::new(1.0, 0.9, 0.9),
+    //     specular: 0.0,
+    //     ..Material::default()
+    // };
 
     let spheres = vec![
         //Sphere::new(m.clone(), Mat::identity(4).scaling(10.0, 0.01, 10.0)),
@@ -132,7 +120,7 @@ fn main() {
         Sphere::new(
             Material {
                 color: Vec3::new(0.0, 1.0, 1.0),
-                diffuse: 1.0,
+                diffuse: 0.7,
                 reflective: 0.5,
                 ..Material::default()
             },
@@ -143,17 +131,19 @@ fn main() {
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 0.2, 1.0),
-                diffuse: 1.0,
+                diffuse: 0.7,
                 ..Material::default()
             },
             Mat::identity(4)
-                .translation(1.5, 0.5, -0.5)
+                .translation(0.5, -0.0, -0.5)
+                //.translation(-1.5, 1.0, -0.5)
                 .scaling(0.5, 0.2, 0.5),
         ),
         Sphere::new(
             Material {
                 color: Vec3::new(1.0, 1.0, 0.0),
-                diffuse: 1.0,
+                diffuse: 0.7,
+                specular: 1.0,
                 ..Material::default()
             },
             Mat::identity(4)
@@ -166,7 +156,7 @@ fn main() {
     canvas.for_each(|pixel, x, y| {
         let ray = w.camera.get_ray(x, y);
         let color = trace(&w, &ray, 0);
-        print!("\r{} pixel", 1000 * y + x);
+        //print!("\r{} pixel", 1000 * y + x);
         color.apply(pixel)
     });
     canvas.export_ppm("file.ppm").ok();

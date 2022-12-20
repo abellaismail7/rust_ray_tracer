@@ -1,4 +1,4 @@
-use crate::utils::vec3::Vec3;
+use crate::utils::{ray::Ray, vec3::Vec3};
 
 #[derive(Debug)]
 pub struct Light {
@@ -12,5 +12,10 @@ impl Light {
             position,
             intensity,
         }
+    }
+
+    pub fn ray_at(&self, hitp: &Vec3) -> Ray {
+        let light_dir = (hitp - &self.position).norm();
+        Ray::new(hitp.clone(), light_dir)
     }
 }
