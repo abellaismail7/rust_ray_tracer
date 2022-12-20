@@ -1,4 +1,4 @@
-use crate::world::{shape::Shape, w::Intersection};
+use crate::world::{shapes::shape::Shape, w::Intersection};
 
 use super::{ray::Ray, vec3::Vec3};
 

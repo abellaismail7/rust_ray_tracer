@@ -1,11 +1,11 @@
-use crate::utils::{
+use crate::{utils::{
     material::{IMaterial, Material},
     matrix::Mat,
     ray::Ray,
     vec3::{Float, Vec3},
-};
+}, world::transform::Transformable};
 
-use super::{shape::Shape, transform::Transformable};
+use super::shape::Shape;
 
 #[derive(Debug)]
 pub struct Sphere {

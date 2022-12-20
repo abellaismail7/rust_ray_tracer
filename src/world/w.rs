@@ -5,7 +5,7 @@ use crate::utils::{
     vec3::{Float, Vec3},
 };
 
-use super::{camera::Camera, light::Light, shape::Shape, sphere::Sphere, transform::Transformable};
+use super::{camera::Camera, light::Light, shapes::{shape::Shape, sphere::Sphere}, transform::Transformable};
 
 #[derive(Debug)]
 pub struct World {

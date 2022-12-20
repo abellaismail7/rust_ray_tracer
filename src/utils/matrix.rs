@@ -238,8 +238,6 @@ impl BitXor<&Vec3> for &Mat {
 
 #[cfg(test)]
 mod tests {
-    use std::f32::consts::PI;
-
     use super::*;
 
     #[test]

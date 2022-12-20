@@ -1,4 +1,3 @@
-use crate::world::shape::Shape;
 
 use super::vec3::{Float, Vec3};
 
@@ -25,7 +24,7 @@ impl Default for Material {
     }
 }
 
-pub trait IMaterial: Sized + Shape {
+pub trait IMaterial: Sized {
     fn color(mut self, x: Float, y: Float, z: Float) -> Self {
         self.get_material().color.set_scalar(x, y, z);
         self

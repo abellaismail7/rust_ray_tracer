@@ -1,9 +1,8 @@
 use std::f32::consts::PI;
-
 use minirt::{
     scene::canvas::Canvas,
-    utils::{material::IMaterial, matrix::Mat, vec3::Vec3},
-    world::{camera::Camera, light::Light, sphere::Sphere, transform::Transformable, w::World},
+    utils::{matrix::Mat, vec3::Vec3, material::IMaterial},
+    world::{camera::Camera, light::Light,  w::World, shapes::sphere::Sphere, transform::Transformable},
 };
 
 fn main() {
