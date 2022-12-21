@@ -6,7 +6,9 @@ pub mod utils;
 pub mod world;
 
 fn is_shadow(w: &World, ray: &Ray, comp: &Comp) -> bool {
-    w.intersect(ray, Vec::new())
+    let container = Vec::new();
+    w.intersect(ray, &mut container);
+    container
         .iter()
         .filter(|i| !std::ptr::eq(i.sp, comp.intersection.sp))
         .any(|i| i.t < 0.0)
@@ -16,7 +18,7 @@ fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
     let mut specular = Vec3::zero();
     let mut diff = Vec3::zero();
 
-    let m = &c.intersection.sp.m;
+    let m = c.intersection.sp.material();
     let color = &m.color * &light.intensity;
     let ray = light.ray_at(&c.hitp);
     let light_dot = (-&ray.dir).dot(&c.normalv);
@@ -38,12 +40,13 @@ fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
 
 fn reflected_color(world: &World, comp: &Comp, depth: usize) -> Vec3 {
     let nearest = comp.intersection;
-    if nearest.sp.m.reflective > 0.0 && depth < 10 {
+    let m = nearest.sp.material();
+    if m.reflective > 0.0 && depth < 10 {
         trace(
             world,
             &Ray::new(comp.hitp.clone(), comp.reflectv.clone()),
             depth + 1,
-        ) * nearest.sp.m.reflective
+        ) * m.reflective
     } else {
         Vec3::zero()
     }
@@ -54,9 +57,9 @@ pub fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
     if depth > 10 {
         return bg;
     }
-    let container = Vec::with_capacity(world.spheres.len());
-    let intersections = world.intersect(ray, container);
-    if let Some(nearest) = intersections.first() {
+    let container = Vec::with_capacity(world.shapes.len());
+    world.intersect(ray, &mut container);
+    if let Some(nearest) = container.first() {
         let comps = Comp::prepare_comp(ray, nearest);
         let mut surface = reflected_color(world, &comps, depth);
         for light in world.lights.iter() {

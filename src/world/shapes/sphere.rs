@@ -3,7 +3,7 @@ use crate::{utils::{
     matrix::Mat,
     ray::Ray,
     vec3::{Float, Vec3},
-}, world::transform::Transformable};
+}, world::{transform::Transformable, w::Intersection}};
 
 use super::shape::Shape;
 
@@ -15,7 +15,8 @@ pub struct Sphere {
 }
 
 impl Shape for Sphere {
-    fn intersect(&self, oray: &Ray) -> Option<(Float, Float)> {
+
+    fn intersect<'a: 'b, 'b>(&'a self, oray: &Ray, vec: &'b mut Vec<Intersection<'b>>) -> bool {
         let ray = oray.transform(&self.inverse);
         let a: Float = ray.dir.dot(&ray.dir);
         let b2: Float = ray.dir.dot(&ray.org);
@@ -23,18 +24,22 @@ impl Shape for Sphere {
 
         let d: Float = b2.powf(2.0) - (a * c);
         if d < 0.0 {
-            return None;
+            return false;
         }
         let d_sqrt = d.sqrt();
-        let t0 = (-b2 - d_sqrt) / a;
-        let t1 = (-b2 + d_sqrt) / a;
-        Some((t0, t1))
+        vec.push(Intersection{sp: self, t: (-b2 - d_sqrt) / a});
+        vec.push(Intersection{sp: self, t: (-b2 + d_sqrt) / a});
+        true
     }
 
     fn normal_at(&self, hitp: &Vec3) -> Vec3 {
         let obj_norm = (&self.inverse * hitp).norm();
         let wrl_norm = &self.inverse.transpose() * &obj_norm;
         (wrl_norm).norm()
+    }
+
+    fn material(&self) -> &Material {
+        &self.m
     }
 }
 
@@ -54,6 +59,17 @@ impl IMaterial for Sphere {
 }
 
 impl Sphere {
+
+    fn new() -> Box<Self> {
+        let t = Mat::identity(4);
+        let inverse = t.inverse();
+        Box::new(Self {
+            m: Material::default(),
+            t,
+            inverse,
+        })
+    }
+
     pub fn set_transform(&mut self, m: Mat) {
         self.inverse = m.inverse();
         self.t = m;

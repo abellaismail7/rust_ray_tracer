@@ -11,43 +11,34 @@ use super::{camera::Camera, light::Light, shapes::{shape::Shape, sphere::Sphere}
 pub struct World {
     pub camera: Camera,
     pub lights: Vec<Light>,
-    pub spheres: Vec<Sphere>,
+    pub shapes: Vec<Box<dyn Shape>>,
 }
 
 #[derive(Debug)]
 pub struct Intersection<'a> {
-    pub sp: &'a Sphere,
+    pub sp: &'a dyn Shape,
     pub t: Float,
 }
 
 impl World {
-    pub fn new(camera: Camera, lights: Vec<Light>, spheres: Vec<Sphere>) -> Self {
+    pub fn new(camera: Camera, lights: Vec<Light>, shapes: Vec<Box<dyn Shape>>) -> Self {
         Self {
             camera,
             lights,
-            spheres,
+            shapes,
         }
     }
 
-    pub fn intersect<'a, 'b>(
+    pub fn intersect<'a>(
         &'a self,
         ray: &Ray,
-        mut vec: Vec<Intersection<'b>>,
-    ) -> Vec<Intersection<'b>>
-    where
-        'a: 'b,
+        mut vec: &'a mut  Vec<Intersection<'a>>,
+    )
     {
-        let iter = self
-            .spheres
-            .iter()
-            .filter_map(|s| {
-                let p = s.intersect(ray)?;
-                Some((s, p.0, p.1))
-            })
-            .flat_map(|(s, t0, t1)| [Intersection { sp: s, t: t0 }, Intersection { sp: s, t: t1 }]);
-        vec.extend(iter);
+        for sh in self.shapes.iter() {
+            sh.intersect(ray, &mut vec);
+        }
         vec.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
-        vec
     }
 }
 
@@ -58,18 +49,18 @@ impl Default for World {
             Vec3::new(-10.0, 10.0, -10.0),
             Vec3::new(1.0, 1.0, 1.0),
         )];
-        let spheres = vec![
-            Sphere::default()
+        let shapes: Vec<Box<dyn Shape>> = vec![
+            Box::new(Sphere::default()
                 .color(0.8, 1.0, 0.6)
                 .diffuse(0.7)
-                .specular(0.5),
-            Sphere::default().scaling(0.5, 0.5, 0.5),
+                .specular(0.5)),
+            Box::new(Sphere::default().scaling(0.5, 0.5, 0.5)),
         ];
 
         World {
             camera,
             lights,
-            spheres,
+            shapes,
         }
     }
 }
