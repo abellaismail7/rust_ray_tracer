@@ -1,4 +1,4 @@
-use crate::{utils::{
+/* use crate::{utils::{
     material::{IMaterial, Material},
     matrix::Mat,
     ray::Ray,
@@ -26,7 +26,7 @@ impl Shape for Plane {
         &self.m
     }
 
-    fn intersect<'a: 'b, 'b>(&'a self, oray: &Ray, vec: &'b mut Vec<Intersection<'b>>) -> bool {
+    fn intersect<'a: 'b, 'b>(_w: &'a World, &self, oray: &Ray, vec: &'b mut Vec<Intersection<'b>>) -> bool {
         let ray = oray.transform(&self.inverse);
         if ray.dir.y.abs() < EPSILON
         {
@@ -70,4 +70,4 @@ impl Default for Plane {
         }
     }
 }
-
+*/

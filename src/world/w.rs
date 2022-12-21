@@ -7,17 +7,13 @@ use crate::utils::{
 
 use super::{camera::Camera, light::Light, shapes::{shape::Shape, sphere::Sphere}, transform::Transformable};
 
+type Intersections<'a> = Vec<(&'a Box<dyn Shape>, Float)>;
+
 #[derive(Debug)]
 pub struct World {
     pub camera: Camera,
     pub lights: Vec<Light>,
     pub shapes: Vec<Box<dyn Shape>>,
-}
-
-#[derive(Debug)]
-pub struct Intersection<'a> {
-    pub sp: &'a dyn Shape,
-    pub t: Float,
 }
 
 impl World {
@@ -30,16 +26,22 @@ impl World {
     }
 
     pub fn intersect<'a>(
-        &'a self,
+        &'a mut self,
         ray: &Ray,
-        mut vec: &'a mut  Vec<Intersection<'a>>,
-    )
-    {
-        for sh in self.shapes.iter() {
-            sh.intersect(ray, &mut vec);
-        }
-        vec.sort_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
+    ) -> Intersections<'a> {
+        self.shapes.iter_mut().for_each(|sh| sh.intersect(ray));
+
+        let mut xs: Intersections = self.shapes.iter()
+        .filter(|sh| sh.intersected())
+        .flat_map(|sh| {
+            sh.get_intersections().iter().map(|f| (&*sh, *f))
+        })
+        .collect();
+
+        xs.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
+        xs
     }
+
 }
 
 impl Default for World {
@@ -57,11 +59,7 @@ impl Default for World {
             Box::new(Sphere::default().scaling(0.5, 0.5, 0.5)),
         ];
 
-        World {
-            camera,
-            lights,
-            shapes,
-        }
+        World::new(camera, lights, shapes)
     }
 }
 
@@ -73,12 +71,14 @@ mod tests {
     fn test_intersect() {
         let w = World::default();
         let r = Ray::new(Vec3::new(0.0, 0.0, -5.0), Vec3::new(0.0, 0.0, 1.0));
-        let is = w.intersect(&r, Vec::new());
+        let xs = w.intersect(&r);
 
-        assert_eq!(is.len(), 4);
-        assert_eq!(is[0].t, 4.0);
-        assert_eq!(is[1].t, 4.5);
-        assert_eq!(is[2].t, 5.5);
-        assert_eq!(is[3].t, 6.0);
+
+
+        assert_eq!(xs.len(), 4);
+        assert_eq!(xs[0].1, 4.0);
+        assert_eq!(xs[1].1, 4.5);
+        assert_eq!(xs[2].1, 5.5);
+        assert_eq!(xs[3].1, 6.0);
     }
 }

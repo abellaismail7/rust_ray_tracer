@@ -3,7 +3,7 @@ use crate::{utils::{
     matrix::Mat,
     ray::Ray,
     vec3::{Float, Vec3},
-}, world::{transform::Transformable, w::Intersection}};
+}, world::transform::Transformable};
 
 use super::shape::Shape;
 
@@ -12,11 +12,13 @@ pub struct Sphere {
     pub m: Material,
     pub t: Mat,
     pub inverse: Mat,
+    pub intersections: [Float; 2],
+    pub intersected: bool,
 }
 
 impl Shape for Sphere {
 
-    fn intersect<'a: 'b, 'b>(&'a self, oray: &Ray, vec: &'b mut Vec<Intersection<'b>>) -> bool {
+    fn intersect(&mut self, oray: &Ray) {
         let ray = oray.transform(&self.inverse);
         let a: Float = ray.dir.dot(&ray.dir);
         let b2: Float = ray.dir.dot(&ray.org);
@@ -24,12 +26,13 @@ impl Shape for Sphere {
 
         let d: Float = b2.powf(2.0) - (a * c);
         if d < 0.0 {
-            return false;
+            self.intersected = false;
+            return;
         }
         let d_sqrt = d.sqrt();
-        vec.push(Intersection{sp: self, t: (-b2 - d_sqrt) / a});
-        vec.push(Intersection{sp: self, t: (-b2 + d_sqrt) / a});
-        true
+        self.intersections[0] = (-b2 - d_sqrt) / a;
+        self.intersections[1] = (-b2 + d_sqrt) / a;
+        self.intersected = true;
     }
 
     fn normal_at(&self, hitp: &Vec3) -> Vec3 {
@@ -40,6 +43,15 @@ impl Shape for Sphere {
 
     fn material(&self) -> &Material {
         &self.m
+    }
+
+    #[inline]
+    fn get_intersections(&self) -> &[Float] {
+        &self.intersections
+    }
+
+    fn intersected(&self) -> bool {
+        self.intersected
     }
 }
 
@@ -67,6 +79,8 @@ impl Sphere {
             m: Material::default(),
             t,
             inverse,
+            intersections: [0.0; 2],
+            intersected: false,
         })
     }
 
@@ -84,6 +98,8 @@ impl Default for Sphere {
             m: Material::default(),
             t,
             inverse,
+            intersections: [0.0; 2],
+            intersected: false,
         }
     }
 }

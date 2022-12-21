@@ -1,10 +1,10 @@
-use crate::world::w::Intersection;
+use crate::world::shapes::shape::Shape;
 
 use super::{ray::Ray, vec3::Vec3};
 
 #[derive(Debug)]
 pub struct Comp<'a> {
-    pub intersection: &'a Intersection<'a>,
+    pub cur_shape: &'a Box<dyn Shape>,
     pub hitp: Vec3,
     pub normalv: Vec3,
     pub reflectv: Vec3,
@@ -13,11 +13,11 @@ pub struct Comp<'a> {
 }
 
 impl<'a> Comp<'a> {
-    pub fn prepare_comp(ray: &Ray, nearest: &'a Intersection) -> Comp<'a> {
-        let hitp = ray.position(nearest.t);
-        let normalv = nearest.sp.normal_at(&hitp);
+    pub fn prepare_comp(ray: &Ray, sh: &'a Box<dyn Shape>) -> Comp<'a> {
+        let hitp = ray.position(sh.get_intersections()[0]);
+        let normalv = sh.normal_at(&hitp);
         Self {
-            intersection: nearest,
+            cur_shape: sh,
             reflectv: -&ray.dir.reflect(&normalv),
             normalv,
             hitp,
