@@ -2,13 +2,13 @@
 
 
 #[derive(Debug)]
-pub struct IntersectionHolder<T> {
+pub struct IntersectionHolder<T:Clone> {
     size: usize,
     capacity: usize,
     arr: Vec<T>,
 }
 
-impl<T> IntersectionHolder<T> {
+impl<T:Clone> IntersectionHolder<T> {
 
     pub fn new(capacity: usize) -> Self {
         Self {
@@ -24,6 +24,14 @@ impl<T> IntersectionHolder<T> {
             return None;
         }
         Some(&mut self.arr[self.size])
+    }
+
+    pub fn vec(&self) -> &[T] {
+        &self.arr
+    }
+
+    pub fn vec_mut(&mut self) -> &mut [T] {
+        &mut self.arr
     }
 
     pub fn push(&mut self, item: T) {
