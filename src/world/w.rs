@@ -8,8 +8,6 @@ use crate::utils::{
 
 use super::{camera::Camera, light::Light, shapes::{shape::Shape, sphere::Sphere}, transform::Transformable};
 
-type Intersections<'a> = Vec<(&'a Box<dyn Shape>, Float)>;
-
 #[derive(Debug)]
 pub struct World {
     pub camera: Camera,
@@ -29,10 +27,10 @@ impl World {
     pub fn intersect<'a>(
         &'a self,
         ray: &Ray,
-        xs: &mut IntersectionHolder<(&'a dyn Shape, f32)>,
+        xs: &mut IntersectionHolder<(&'a dyn Shape, Float)>,
     ) {
         self.shapes.iter().for_each(|sh| {
-            sh.intersect(ray, xs);
+            sh.intersect(ray, xs)
         })
     }
 

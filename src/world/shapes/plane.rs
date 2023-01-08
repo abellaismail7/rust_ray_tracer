@@ -26,7 +26,7 @@ impl Shape for Plane {
         &self.m
     }
 
-    fn intersect<'a>(&'a self, oray: &Ray, xs: & mut IntersectionHolder<(&'a dyn Shape, f32)>) {
+    fn intersect<'a>(&'a self, oray: &Ray, xs: & mut IntersectionHolder<(&'a dyn Shape, Float)>) {
         let ray = oray.transform(&self.inverse);
         if ray.dir.y < EPSILON
         {

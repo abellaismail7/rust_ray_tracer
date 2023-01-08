@@ -5,7 +5,7 @@ use crate::utils::{
 };
 
 pub trait Shape: Debug {
-    fn intersect<'a>(&'a self, oray: &Ray, xs: &mut IntersectionHolder<(&'a dyn Shape, f32)>);
+    fn intersect<'a>(&'a self, oray: &Ray, xs: &mut IntersectionHolder<(&'a dyn Shape, Float)>);
     fn normal_at(&self, hitp: &Vec3) -> Vec3;
     fn material(&self) -> &Material;
 }
