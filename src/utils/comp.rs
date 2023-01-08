@@ -1,10 +1,10 @@
 use crate::world::shapes::shape::Shape;
 
-use super::{ray::Ray, vec3::Vec3};
+use super::{ray::Ray, vec3::{Vec3, Float}};
 
 #[derive(Debug)]
 pub struct Comp<'a> {
-    pub cur_shape: &'a Box<dyn Shape>,
+    pub cur_shape: &'a dyn Shape,
     pub hitp: Vec3,
     pub normalv: Vec3,
     pub reflectv: Vec3,
@@ -13,8 +13,8 @@ pub struct Comp<'a> {
 }
 
 impl<'a> Comp<'a> {
-    pub fn prepare_comp(ray: &Ray, sh: &'a Box<dyn Shape>) -> Comp<'a> {
-        let hitp = ray.position(sh.get_intersections()[0]);
+    pub fn prepare_comp(ray: &Ray, sh: &'a dyn Shape, t: Float) -> Comp<'a> {
+        let hitp = ray.position(t);
         let normalv = sh.normal_at(&hitp);
         Self {
             cur_shape: sh,

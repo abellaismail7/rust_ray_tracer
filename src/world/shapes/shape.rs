@@ -1,13 +1,11 @@
 use std::fmt::Debug;
 
 use crate::utils::{
-    ray::Ray, vec3::{Vec3, Float}, material::Material,
+    ray::Ray, vec3::{Vec3, Float}, material::Material, intersection_holder::IntersectionHolder,
 };
 
 pub trait Shape: Debug {
-    fn intersect(&mut self, oray: &Ray);
+    fn intersect<'a>(&'a self, oray: &Ray, xs: &mut IntersectionHolder<(&'a dyn Shape, f32)>);
     fn normal_at(&self, hitp: &Vec3) -> Vec3;
     fn material(&self) -> &Material;
-    fn get_intersections(&self) -> &[Float];
-    fn intersected(&self) -> bool;
 }

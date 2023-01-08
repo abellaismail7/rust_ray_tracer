@@ -1,8 +1,9 @@
+
 use crate::utils::{
     material::IMaterial,
     matrix::Mat,
     ray::Ray,
-    vec3::{Float, Vec3},
+    vec3::{Float, Vec3}, intersection_holder::IntersectionHolder,
 };
 
 use super::{camera::Camera, light::Light, shapes::{shape::Shape, sphere::Sphere}, transform::Transformable};
@@ -26,20 +27,13 @@ impl World {
     }
 
     pub fn intersect<'a>(
-        &'a mut self,
+        &'a self,
         ray: &Ray,
-    ) -> Intersections<'a> {
-        self.shapes.iter_mut().for_each(|sh| sh.intersect(ray));
-
-        let mut xs: Intersections = self.shapes.iter()
-        .filter(|sh| sh.intersected())
-        .flat_map(|sh| {
-            sh.get_intersections().iter().map(|f| (&*sh, *f))
+        xs: &mut IntersectionHolder<(&'a dyn Shape, f32)>,
+    ) {
+        self.shapes.iter().for_each(|sh| {
+            sh.intersect(ray, xs);
         })
-        .collect();
-
-        xs.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
-        xs
     }
 
 }
@@ -69,11 +63,9 @@ mod tests {
 
     #[test]
     fn test_intersect() {
-        let w = World::default();
+        let mut w = World::default();
         let r = Ray::new(Vec3::new(0.0, 0.0, -5.0), Vec3::new(0.0, 0.0, 1.0));
         let xs = w.intersect(&r);
-
-
 
         assert_eq!(xs.len(), 4);
         assert_eq!(xs[0].1, 4.0);

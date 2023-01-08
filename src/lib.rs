@@ -1,19 +1,21 @@
-use utils::{comp::Comp, ray::Ray, vec3::Vec3};
+use utils::{comp::Comp, ray::Ray, vec3::Vec3, intersection_holder::IntersectionHolder};
 use world::{w::World, light::Light};
 
 pub mod scene;
 pub mod utils;
 pub mod world;
 
-fn is_shadow(w: &mut World, ray: &Ray, comp: &Comp) -> bool {
-    w.intersect(ray);
-    w.shapes
-        .iter()
-        .filter(|shape| !std::ptr::eq(shape, &comp.cur_shape))
-        .any(|shape| shape.get_intersections()[0] < 0.0)
+fn is_shadow(w: &World, ray: &Ray, comp: &Comp) -> bool {
+    // let mut xs = IntersectionHolder::new(100);
+    // w.intersect(ray, &mut xs);
+    // w.shapes
+    //     .iter()
+    //     .filter(|shape| !std::ptr::eq(*shape, &comp.cur_shape))
+    //     .any(|shape| shape.intersect(ray).unwrap_or(&[0.0])[0] < 0.0)
+    false
 }
 
-fn shade_hit(w: &mut World, c: &Comp, light: &Light) -> Vec3 {
+fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
     let mut specular = Vec3::zero();
     let mut diff = Vec3::zero();
 
@@ -37,7 +39,7 @@ fn shade_hit(w: &mut World, c: &Comp, light: &Light) -> Vec3 {
     (&color * m.ambient) + diff + specular
 }
 
-fn reflected_color(world: &mut World, comp: &Comp, depth: usize) -> Vec3 {
+fn reflected_color(world: &World, comp: &Comp, depth: usize) -> Vec3 {
     let m = comp.cur_shape.material();
     if m.reflective > 0.0 && depth < 10 {
         trace(
@@ -50,19 +52,20 @@ fn reflected_color(world: &mut World, comp: &Comp, depth: usize) -> Vec3 {
     }
 }
 
-pub fn trace(world: &mut World, ray: &Ray, depth: usize) -> Vec3 {
+pub fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
     let bg = Vec3::zero();
     if depth > 10 {
         return bg;
     }
-    
-    let xs = world.intersect(ray); 
+
+    let mut xs = IntersectionHolder::new(100);
+    world.intersect(ray, &mut xs); 
     if let Some((sh, t)) = xs.get(0) {
-        let comps = Comp::prepare_comp(ray, sh);
-        let surface = reflected_color(world, &comps, depth);
-        //for light in world.lights.iter() {
-        //    surface = surface + shade_hit(world, &comps, light);
-        //}
+        let comps = Comp::prepare_comp(ray, *sh, *t);
+        let mut surface = reflected_color(world, &comps, depth);
+        for light in world.lights.iter() {
+            surface = surface + shade_hit(world, &comps, light);
+        }
         return surface;
     }
     bg

@@ -1,9 +1,9 @@
-/* use crate::{utils::{
+use crate::{utils::{
     material::{IMaterial, Material},
     matrix::Mat,
     ray::Ray,
-    vec3::{Vec3, EPSILON},
-}, world::{transform::Transformable, w::Intersection}};
+    vec3::{Vec3, EPSILON, Float}, intersection_holder::IntersectionHolder,
+}, world::transform::Transformable};
 
 use super::shape::Shape;
 
@@ -26,14 +26,12 @@ impl Shape for Plane {
         &self.m
     }
 
-    fn intersect<'a: 'b, 'b>(_w: &'a World, &self, oray: &Ray, vec: &'b mut Vec<Intersection<'b>>) -> bool {
-        let ray = oray.transform(&self.inverse);
-        if ray.dir.y.abs() < EPSILON
+    fn intersect<'a>(&'a self, oray: &Ray, xs: & mut IntersectionHolder<(&'a dyn Shape, f32)>) {
+        let ray = oray;
+        if ray.dir.y < EPSILON
         {
-            return false;
+            xs.push((self,-ray.org.y / ray.dir.y));
         }
-        vec.push(Intersection{sp: self, t: -ray.org.y / ray.dir.y});
-        true
     }
 }
 
@@ -70,4 +68,3 @@ impl Default for Plane {
         }
     }
 }
-*/
