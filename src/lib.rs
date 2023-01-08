@@ -1,18 +1,14 @@
-use utils::{comp::Comp, ray::Ray, vec3::Vec3, intersection_holder::IntersectionHolder};
+use utils::{comp::Comp, ray::Ray, vec3::{Vec3, EPSILON}, intersection_holder::IntersectionHolder};
 use world::{w::World, light::Light};
 
 pub mod scene;
 pub mod utils;
 pub mod world;
 
-fn is_shadow(w: &World, ray: &Ray, comp: &Comp) -> bool {
-    // let mut xs = IntersectionHolder::new(100);
-    // w.intersect(ray, &mut xs);
-    // w.shapes
-    //     .iter()
-    //     .filter(|shape| !std::ptr::eq(*shape, &comp.cur_shape))
-    //     .any(|shape| shape.intersect(ray).unwrap_or(&[0.0])[0] < 0.0)
-    false
+fn is_shadow(w: &World, ray: &Ray, comp: &Comp, light: &Vec3) -> bool {
+    let mut xs = IntersectionHolder::new(100);
+    w.intersect(ray, &mut xs);
+    xs.vec().iter().any(|s| s.1 < - 2.0 * EPSILON)
 }
 
 fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
@@ -25,7 +21,7 @@ fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
     let light_dot = (-&ray.dir).dot(&c.normalv);
 
     let intersected_with_light = light_dot >= 0.0;
-    if intersected_with_light && !is_shadow(w, &ray, c) {
+    if intersected_with_light && !is_shadow(w, &ray, c, &light.position) {
         diff = &color * m.diffuse * light_dot;
 
         let reflect = ray.dir.reflect(&c.normalv);
@@ -60,6 +56,7 @@ pub fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
 
     let mut xs = IntersectionHolder::new(100);
     world.intersect(ray, &mut xs); 
+    xs.vec_mut().sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
     if let Some((sh, t)) = xs.get(0) {
         let comps = Comp::prepare_comp(ray, *sh, *t);
         let mut surface = reflected_color(world, &comps, depth);
