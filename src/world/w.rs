@@ -27,7 +27,7 @@ impl World {
     pub fn intersect<'a>(
         &'a self,
         ray: &Ray,
-        xs: &mut IntersectionHolder<(&'a dyn Shape, Float)>,
+        xs: &mut Vec<(&'a dyn Shape, Float)>,
     ) {
         self.shapes.iter().for_each(|sh| {
             sh.intersect(ray, xs)
@@ -61,9 +61,11 @@ mod tests {
 
     #[test]
     fn test_intersect() {
-        let mut w = World::default();
+        let w = World::default();
         let r = Ray::new(Vec3::new(0.0, 0.0, -5.0), Vec3::new(0.0, 0.0, 1.0));
-        let xs = w.intersect(&r);
+        let mut xs = Vec::with_capacity(100);
+        w.intersect(&r, &mut xs);
+        xs.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
 
         assert_eq!(xs.len(), 4);
         assert_eq!(xs[0].1, 4.0);

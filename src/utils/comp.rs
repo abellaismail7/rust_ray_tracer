@@ -18,7 +18,7 @@ impl<'a> Comp<'a> {
         let normalv = sh.normal_at(&hitp);
         Self {
             cur_shape: sh,
-            reflectv: -&ray.dir.reflect(&normalv),
+            reflectv: ray.dir.reflect(&normalv),
             normalv,
             hitp,
             eyev: -&ray.dir,

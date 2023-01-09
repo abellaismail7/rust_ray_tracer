@@ -2,7 +2,7 @@ use crate::{utils::{
     material::{IMaterial, Material},
     matrix::Mat,
     ray::Ray,
-    vec3::{Vec3, EPSILON, Float}, intersection_holder::IntersectionHolder,
+    vec3::{Vec3, EPSILON, Float},
 }, world::transform::Transformable};
 
 use super::shape::Shape;
@@ -26,7 +26,7 @@ impl Shape for Plane {
         &self.m
     }
 
-    fn intersect<'a>(&'a self, oray: &Ray, xs: & mut IntersectionHolder<(&'a dyn Shape, Float)>) {
+    fn intersect<'a>(&'a self, oray: &Ray, xs: & mut Vec<(&'a dyn Shape, Float)>) {
         let ray = oray.transform(&self.inverse);
         if ray.dir.y < EPSILON
         {

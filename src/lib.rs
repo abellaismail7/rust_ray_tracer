@@ -1,4 +1,4 @@
-use utils::{comp::Comp, ray::Ray, vec3::{Vec3, EPSILON}, intersection_holder::IntersectionHolder};
+use utils::{comp::Comp, ray::Ray, vec3::{Vec3, EPSILON}};
 use world::{w::World, light::Light};
 
 pub mod scene;
@@ -6,9 +6,14 @@ pub mod utils;
 pub mod world;
 
 fn is_shadow(w: &World, ray: &Ray, comp: &Comp, light: &Vec3) -> bool {
-    let mut xs = IntersectionHolder::new(100);
+    let mut xs = Vec::with_capacity(100);
     w.intersect(ray, &mut xs);
-    xs.vec().iter().any(|s| s.1 < - 2.0 * EPSILON)
+    let min = xs.iter().filter(|(_, f)| *f > 0.0).min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
+    let t = (light - &comp.hitp).mag();
+    if let Some((_, f)) = min {
+        return *f > t;
+    }
+    false
 }
 
 fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
@@ -21,7 +26,8 @@ fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
     let light_dot = (-&ray.dir).dot(&c.normalv);
 
     let intersected_with_light = light_dot >= 0.0;
-    if intersected_with_light && !is_shadow(w, &ray, c, &light.position) {
+    if intersected_with_light && !is_shadow(w, &ray, c, &light.position)
+    {
         diff = &color * m.diffuse * light_dot;
 
         let reflect = ray.dir.reflect(&c.normalv);
@@ -40,7 +46,7 @@ fn reflected_color(world: &World, comp: &Comp, depth: usize) -> Vec3 {
     if m.reflective > 0.0 && depth < 10 {
         trace(
             world,
-            &Ray::new(comp.hitp.clone(), comp.reflectv.clone()),
+            &Ray::new(comp.hitp.clone(), -&comp.reflectv),
             depth + 1,
         ) * m.reflective
     } else {
@@ -54,9 +60,9 @@ pub fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
         return bg;
     }
 
-    let mut xs = IntersectionHolder::new(100);
+    let mut xs = Vec::with_capacity(100);
     world.intersect(ray, &mut xs); 
-    xs.vec_mut().sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
+    xs.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
     if let Some((sh, t)) = xs.get(0) {
         let comps = Comp::prepare_comp(ray, *sh, *t);
         let mut surface = reflected_color(world, &comps, depth);
