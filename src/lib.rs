@@ -46,7 +46,7 @@ fn reflected_color(world: &World, comp: &Comp, depth: usize) -> Vec3 {
     if m.reflective > 0.0 && depth < 10 {
         trace(
             world,
-            &Ray::new(comp.hitp.clone(), -&comp.reflectv),
+            &Ray::new(comp.hitp.clone(), comp.reflectv.clone()),
             depth + 1,
         ) * m.reflective
     } else {
@@ -62,8 +62,8 @@ pub fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
 
     let mut xs = Vec::with_capacity(100);
     world.intersect(ray, &mut xs); 
-    xs.sort_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
-    if let Some((sh, t)) = xs.get(0) {
+    let min = xs.iter().filter(|(_, f)| *f > 0.0).min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
+    if let Some((sh, t)) = min {
         let comps = Comp::prepare_comp(ray, *sh, *t);
         let mut surface = reflected_color(world, &comps, depth);
         for light in world.lights.iter() {
