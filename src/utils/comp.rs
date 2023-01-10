@@ -1,6 +1,9 @@
 use crate::world::shapes::shape::Shape;
 
-use super::{ray::Ray, vec3::{Vec3, Float}};
+use super::{
+    ray::Ray,
+    vec3::{Float, Vec3, EPSILON},
+};
 
 #[derive(Debug)]
 pub struct Comp<'a> {

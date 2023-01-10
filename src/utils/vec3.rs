@@ -48,7 +48,7 @@ impl Vec3 {
     }
 
     pub fn reflect(&self, normal: &Vec3) -> Vec3 {
-        self - normal * self.dot(normal) * 2.0 
+        self - normal * self.dot(normal) * 2.0
     }
 
     pub fn apply(&self, pixel: &mut [u8]) {

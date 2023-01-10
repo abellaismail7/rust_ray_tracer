@@ -8,7 +8,10 @@ pub mod world;
 fn is_shadow(w: &World, ray: &Ray, comp: &Comp, light: &Vec3) -> bool {
     let mut xs = Vec::with_capacity(100);
     w.intersect(ray, &mut xs);
-    let min = xs.iter().filter(|(_, f)| *f > 0.0).min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
+    let min = xs
+        .iter()
+        .filter(|(_, f)| *f > 0.0)
+        .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
     let t = (light - &comp.hitp).mag();
     if let Some((_, f)) = min {
         return *f > t;

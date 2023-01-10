@@ -1,9 +1,12 @@
-use crate::{utils::{
-    material::{IMaterial, Material},
-    matrix::Mat,
-    ray::Ray,
-    vec3::{Float, Vec3},
-}, world::transform::Transformable};
+use crate::{
+    utils::{
+        material::{IMaterial, Material},
+        matrix::Mat,
+        ray::Ray,
+        vec3::{Float, Vec3},
+    },
+    world::transform::Transformable,
+};
 
 use super::shape::Shape;
 
@@ -17,7 +20,6 @@ pub struct Sphere {
 }
 
 impl Shape for Sphere {
-
     fn intersect<'a>(&'a self, oray: &Ray, xs: &mut Vec<(&'a dyn Shape, f32)>) {
         let ray = oray.transform(&self.inverse);
         let a: Float = ray.dir.dot(&ray.dir);
@@ -26,10 +28,10 @@ impl Shape for Sphere {
 
         let d: Float = b2.powf(2.0) - (a * c);
         if d < 0.0 {
-            return ;
+            return;
         }
         let d_sqrt = d.sqrt();
-        
+
         xs.push((self, (-b2 - d_sqrt) / a));
         xs.push((self, (-b2 + d_sqrt) / a));
     }
@@ -61,8 +63,7 @@ impl IMaterial for Sphere {
 }
 
 impl Sphere {
-
-    fn new() -> Box<Self> {
+    pub fn new() -> Box<Self> {
         let t = Mat::identity(4);
         let inverse = t.inverse();
         Box::new(Self {

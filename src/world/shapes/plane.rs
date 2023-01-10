@@ -1,9 +1,12 @@
-use crate::{utils::{
-    material::{IMaterial, Material},
-    matrix::Mat,
-    ray::Ray,
-    vec3::{Vec3, EPSILON, Float},
-}, world::transform::Transformable};
+use crate::{
+    utils::{
+        material::{IMaterial, Material},
+        matrix::Mat,
+        ray::Ray,
+        vec3::{Float, Vec3, EPSILON},
+    },
+    world::transform::Transformable,
+};
 
 use super::shape::Shape;
 
@@ -15,7 +18,6 @@ pub struct Plane {
 }
 
 impl Shape for Plane {
-
     fn normal_at(&self, _hitp: &Vec3) -> Vec3 {
         let obj_norm = Vec3::new(0.0, 1.0, 0.0);
         let wrl_norm = &self.inverse.transpose() * &obj_norm;
@@ -26,11 +28,10 @@ impl Shape for Plane {
         &self.m
     }
 
-    fn intersect<'a>(&'a self, oray: &Ray, xs: & mut Vec<(&'a dyn Shape, Float)>) {
+    fn intersect<'a>(&'a self, oray: &Ray, xs: &mut Vec<(&'a dyn Shape, Float)>) {
         let ray = oray.transform(&self.inverse);
-        if ray.dir.y < EPSILON
-        {
-            xs.push((self,-ray.org.y / ray.dir.y));
+        if ray.dir.y < EPSILON {
+            xs.push((self, -ray.org.y / ray.dir.y));
         }
     }
 }

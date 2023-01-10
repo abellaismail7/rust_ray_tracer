@@ -1,12 +1,16 @@
-
 use crate::utils::{
     material::IMaterial,
     matrix::Mat,
     ray::Ray,
-    vec3::{Float, Vec3}, intersection_holder::IntersectionHolder,
+    vec3::{Float, Vec3},
 };
 
-use super::{camera::Camera, light::Light, shapes::{shape::Shape, sphere::Sphere}, transform::Transformable};
+use super::{
+    camera::Camera,
+    light::Light,
+    shapes::{shape::Shape, sphere::Sphere},
+    transform::Transformable,
+};
 
 #[derive(Debug)]
 pub struct World {
@@ -24,16 +28,9 @@ impl World {
         }
     }
 
-    pub fn intersect<'a>(
-        &'a self,
-        ray: &Ray,
-        xs: &mut Vec<(&'a dyn Shape, Float)>,
-    ) {
-        self.shapes.iter().for_each(|sh| {
-            sh.intersect(ray, xs)
-        })
+    pub fn intersect<'a>(&'a self, ray: &Ray, xs: &mut Vec<(&'a dyn Shape, Float)>) {
+        self.shapes.iter().for_each(|sh| sh.intersect(ray, xs))
     }
-
 }
 
 impl Default for World {
@@ -44,10 +41,12 @@ impl Default for World {
             Vec3::new(1.0, 1.0, 1.0),
         )];
         let shapes: Vec<Box<dyn Shape>> = vec![
-            Box::new(Sphere::default()
-                .color(0.8, 1.0, 0.6)
-                .diffuse(0.7)
-                .specular(0.5)),
+            Box::new(
+                Sphere::default()
+                    .color(0.8, 1.0, 0.6)
+                    .diffuse(0.7)
+                    .specular(0.5),
+            ),
             Box::new(Sphere::default().scaling(0.5, 0.5, 0.5)),
         ];
 

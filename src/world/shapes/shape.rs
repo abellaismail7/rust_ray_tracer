@@ -1,7 +1,9 @@
 use std::fmt::Debug;
 
 use crate::utils::{
-    ray::Ray, vec3::{Vec3, Float}, material::Material,
+    material::Material,
+    ray::Ray,
+    vec3::{Float, Vec3},
 };
 
 pub trait Shape: Debug {
