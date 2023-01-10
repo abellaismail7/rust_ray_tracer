@@ -1,5 +1,5 @@
-use utils::{comp::Comp, ray::Ray, vec3::{Vec3, EPSILON}};
-use world::{w::World, light::Light};
+use utils::{comp::Comp, ray::Ray, vec3::Vec3};
+use world::{light::Light, w::World};
 
 pub mod scene;
 pub mod utils;
@@ -24,13 +24,12 @@ fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
     let mut diff = Vec3::zero();
 
     let m = c.cur_shape.material();
-    let color = &m.color * &light.intensity;
+    let color = m.get_color(&c.hitp) * &light.intensity;
     let ray = light.ray_at(&c.hitp);
     let light_dot = (-&ray.dir).dot(&c.normalv);
 
     let intersected_with_light = light_dot >= 0.0;
-    if intersected_with_light && !is_shadow(w, &ray, c, &light.position)
-    {
+    if intersected_with_light && !is_shadow(w, &ray, c, &light.position) {
         diff = &color * m.diffuse * light_dot;
 
         let reflect = ray.dir.reflect(&c.normalv);
@@ -49,7 +48,7 @@ fn reflected_color(world: &World, comp: &Comp, depth: usize) -> Vec3 {
     if m.reflective > 0.0 && depth < 10 {
         trace(
             world,
-            &Ray::new(comp.hitp.clone(), comp.reflectv.clone()),
+            &Ray::new(comp.over_point.clone(), comp.reflectv.clone()),
             depth + 1,
         ) * m.reflective
     } else {
@@ -64,8 +63,11 @@ pub fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
     }
 
     let mut xs = Vec::with_capacity(100);
-    world.intersect(ray, &mut xs); 
-    let min = xs.iter().filter(|(_, f)| *f > 0.0).min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
+    world.intersect(ray, &mut xs);
+    let min = xs
+        .iter()
+        .filter(|(_, f)| *f > 0.0)
+        .min_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap());
     if let Some((sh, t)) = min {
         let comps = Comp::prepare_comp(ray, *sh, *t);
         let mut surface = reflected_color(world, &comps, depth);
@@ -76,4 +78,3 @@ pub fn trace(world: &World, ray: &Ray, depth: usize) -> Vec3 {
     }
     bg
 }
-

@@ -12,19 +12,26 @@ pub struct Comp<'a> {
     pub normalv: Vec3,
     pub reflectv: Vec3,
     pub eyev: Vec3,
+    pub over_point: Vec3,
+    pub under_point: Vec3,
     pub inside: bool,
 }
 
 impl<'a> Comp<'a> {
     pub fn prepare_comp(ray: &Ray, sh: &'a dyn Shape, t: Float) -> Comp<'a> {
         let hitp = ray.position(t);
-        let normalv = sh.normal_at(&hitp);
+        let mut normalv = sh.normal_at(&hitp);
+        if (-&ray.dir).dot(&normalv) < 0.0 {
+            normalv = -&normalv;
+        }
         Self {
             cur_shape: sh,
             reflectv: ray.dir.reflect(&normalv),
-            normalv,
-            hitp,
             eyev: -&ray.dir,
+            over_point: &hitp + &normalv * EPSILON,
+            under_point: &hitp - &normalv * EPSILON,
+            hitp,
+            normalv,
             inside: false,
         }
     }

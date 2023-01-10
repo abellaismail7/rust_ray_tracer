@@ -1,9 +1,14 @@
-
 use super::vec3::{Float, Vec3};
 
 #[derive(Debug, Clone)]
+pub enum Pattern {
+    Stripped(Vec3, Vec3),
+    Unified(Vec3),
+}
+
+#[derive(Debug, Clone)]
 pub struct Material {
-    pub color: Vec3,
+    pub pattern: Pattern,
     pub ambient: Float,
     pub diffuse: Float,
     pub specular: Float,
@@ -14,7 +19,7 @@ pub struct Material {
 impl Default for Material {
     fn default() -> Self {
         Self {
-            color: Vec3::from_float(1.0),
+            pattern: Pattern::Unified(Vec3::from_float(1.0)),
             ambient: 0.1,
             diffuse: 0.9,
             specular: 0.9,
@@ -24,9 +29,28 @@ impl Default for Material {
     }
 }
 
+impl Material {
+    pub fn get_color(&self, point: &Vec3) -> &Vec3 {
+        match &self.pattern {
+            Pattern::Stripped(odd_color, even_color) => {
+                if point.x.round() % 2.0 == 0.0 {
+                    return even_color;
+                }
+                odd_color
+            }
+            Pattern::Unified(color) => color,
+        }
+    }
+}
+
 pub trait IMaterial: Sized {
     fn color(mut self, x: Float, y: Float, z: Float) -> Self {
-        self.get_material().color.set_scalar(x, y, z);
+        self.get_material().pattern = Pattern::Unified(Vec3::new(x, y, z));
+        self
+    }
+
+    fn pattern(mut self, pattern: Pattern) -> Self {
+        self.get_material().pattern = pattern;
         self
     }
 
