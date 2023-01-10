@@ -34,6 +34,10 @@ impl Shape for Plane {
             xs.push((self, -ray.org.y / ray.dir.y));
         }
     }
+
+    fn inverse(&self) -> &Mat {
+        &self.inverse
+    }
 }
 
 impl Transformable for Plane {

@@ -3,6 +3,7 @@ use super::vec3::{Float, Vec3};
 #[derive(Debug, Clone)]
 pub enum Pattern {
     Stripped(Vec3, Vec3),
+    Checker(Vec3, Vec3, Float),
     Unified(Vec3),
 }
 
@@ -29,9 +30,22 @@ impl Default for Material {
     }
 }
 
+#[inline]
+fn hmmm(f: Float, sp: Float) -> bool {
+    (f * sp).round() % 2.0 == 0.0
+}
+
 impl Material {
     pub fn get_color(&self, point: &Vec3) -> &Vec3 {
         match &self.pattern {
+            Pattern::Checker(odd_color, even_color, f) => {
+                if (hmmm(point.x, *f)) != (hmmm(point.z, *f)) {
+                /* if (point.x.round() % 2.0 == 0.0) !=
+                (point.z.round() % 2.0 == 0.0) { */
+                    return even_color;
+                }
+                odd_color
+            }
             Pattern::Stripped(odd_color, even_color) => {
                 if point.x.round() % 2.0 == 0.0 {
                     return even_color;

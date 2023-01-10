@@ -42,6 +42,10 @@ impl Shape for Sphere {
         (wrl_norm).norm()
     }
 
+    fn inverse(&self) -> &Mat {
+        &self.inverse
+    }
+
     fn material(&self) -> &Material {
         &self.m
     }
