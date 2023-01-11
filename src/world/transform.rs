@@ -1,50 +1,50 @@
-use crate::utils::{matrix::Mat, vec3::Float};
+use crate::{utils::{matrix::Mat, vec3::Float}, at};
 
 pub trait Transformable: Sized {
     fn translation(mut self, x: Float, y: Float, z: Float) -> Self {
         let mut m = Mat::identity(4);
-        m.tab[0][3] = x;
-        m.tab[1][3] = y;
-        m.tab[2][3] = z;
+        at!(m, 0,3) = x;
+        at!(m, 1,3) = y;
+        at!(m, 2,3) = z;
         self.apply_transform(&m);
         self
     }
 
     fn scaling(mut self, x: Float, y: Float, z: Float) -> Self {
         let mut m = Mat::identity(4);
-        m.tab[0][0] = x;
-        m.tab[1][1] = y;
-        m.tab[2][2] = z;
+        at!(m,0,0) = x;
+        at!(m,1,1) = y;
+        at!(m,2,2) = z;
         self.apply_transform(&m);
         self
     }
 
     fn rotation_x(mut self, r: Float) -> Self {
         let mut m = Mat::identity(4);
-        m.tab[1][1] = r.cos();
-        m.tab[1][2] = -r.sin();
-        m.tab[2][1] = r.sin();
-        m.tab[2][2] = r.cos();
+        at!(m,1,1) = r.cos();
+        at!(m,1,2) = -r.sin();
+        at!(m,2,1) = r.sin();
+        at!(m,2,2) = r.cos();
         self.apply_transform(&m);
         self
     }
 
     fn rotation_y(mut self, r: Float) -> Self {
         let mut m = Mat::identity(4);
-        m.tab[0][0] = r.cos();
-        m.tab[0][2] = r.sin();
-        m.tab[2][0] = -r.sin();
-        m.tab[2][2] = r.cos();
+        at!(m,0,0) = r.cos();
+        at!(m,0,2) = r.sin();
+        at!(m,2,0) = -r.sin();
+        at!(m,2,2) = r.cos();
         self.apply_transform(&m);
         self
     }
 
     fn rotation_z(mut self, r: Float) -> Self {
         let mut m = Mat::identity(4);
-        m.tab[0][0] = r.cos();
-        m.tab[0][1] = -r.sin();
-        m.tab[1][0] = r.sin();
-        m.tab[1][1] = r.cos();
+        at!(m,0,0) = r.cos();
+        at!(m,0,1) = -r.sin();
+        at!(m,1,0) = r.sin();
+        at!(m,1,1) = r.cos();
         self.apply_transform(&m);
         self
     }
@@ -59,12 +59,12 @@ pub trait Transformable: Sized {
         zy: Float,
     ) -> Self {
         let mut m = Mat::identity(4);
-        m.tab[0][1] = xy;
-        m.tab[0][2] = xz;
-        m.tab[1][0] = yx;
-        m.tab[1][2] = yz;
-        m.tab[2][0] = zx;
-        m.tab[2][1] = zy;
+        at!(m,0,1) = xy;
+        at!(m,0,2) = xz;
+        at!(m,1,0) = yx;
+        at!(m,1,2) = yz;
+        at!(m,2,0) = zx;
+        at!(m,2,1) = zy;
         self.apply_transform(&m);
         self
     }
