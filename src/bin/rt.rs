@@ -33,14 +33,14 @@ fn main() {
     let spheres: Vec<Box<dyn Shape>> = vec![
         Box::new(
             Sphere::default()
-                .pattern(Pattern::Stripped(Vec3::new(0.0, 1.0, 1.0), Vec3::zero()))
-                .reflective(0.5)
+                .pattern(Pattern::Checker(Vec3::new(0.0, 1.0, 1.0), Vec3::new(0.8, 1.0, 1.0), 0.0))
+                .reflective(1.0)
                 .translation(-0.5, 1.0, 0.5)
                 .scaling(1.0, 1.0, 1.0),
         ),
         Box::new(
             Sphere::default()
-                .pattern(Pattern::Stripped(Vec3::new(1.0, 1.0, 0.0), Vec3::zero()))
+                .color(1.0, 0.0, 1.0)
                 .translation(0.5, -0.0, -0.5)
                 .scaling(0.5, 0.2, 0.5),
         ),
@@ -54,8 +54,8 @@ fn main() {
         ),
         Box::new(
             Plane::default()
-                .reflective(0.2)
-                .pattern(Pattern::Stripped(Vec3::new(1.0, 1.0, 1.0), Vec3::zero()))
+                .reflective(0.0)
+                .pattern(Pattern::Checker(Vec3::new(1.0, 0.8, 0.8), Vec3::new(1.0, 0.0, 0.0), 2.0))
                 //.translation(0.0, -2.0, 0.0)
         ),
     ];

@@ -24,7 +24,7 @@ fn shade_hit(w: &World, c: &Comp, light: &Light) -> Vec3 {
     let mut diff = Vec3::zero();
 
     let m = c.cur_shape.material();
-    let color = m.get_color(&c.hitp) * &light.intensity;
+    let color = m.get_color(&c.cur_shape.world_point(&c.hitp)) * &light.intensity;
     let ray = light.ray_at(&c.hitp);
     let light_dot = (-&ray.dir).dot(&c.normalv);
 
