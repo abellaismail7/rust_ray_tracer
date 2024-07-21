@@ -11,9 +11,9 @@ fn main() {
     let m = Mat::identity(4).rotation_z(PI / 6.0);
     let white = Vec3::from_float(1.0);
     for _ in 0..12 {
-        let x = ((p.x + 0.5) * 200.0) as usize + 50;
-        let y = ((p.y + 0.5) * 200.0) as usize + 50;
-        canvas.write_at(x as usize, y as usize, &white);
+        let x = ((p.x + 0.5) * 200.0) as u32 + 50;
+        let y = ((p.y + 0.5) * 200.0) as u32 + 50;
+        canvas.write_at(x, y, &white);
         p = &m * &p;
     }
     canvas.export_ppm("file.ppm").ok();

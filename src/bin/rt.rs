@@ -1,9 +1,12 @@
-use std::f32::consts::PI;
 use minirt::{
+    rt::RayTracer,
     scene::canvas::Canvas,
-    utils::{matrix::Mat, vec3::Vec3, material::IMaterial},
-    world::{camera::Camera, light::Light,  w::World, shapes::sphere::Sphere, transform::Transformable},
+    utils::{material::IMaterial, matrix::Mat, vec3::Vec3},
+    world::{
+        camera::Camera, light::Light, shapes::sphere::Sphere, transform::Transformable, w::World,
+    },
 };
+use std::f32::consts::PI;
 
 fn main() {
     let camera = Camera::new(
@@ -21,7 +24,7 @@ fn main() {
 
     let lights = vec![
         Light::new(Vec3::new(-10.0, 10.0, -10.0), Vec3::new(1.0, 0.5, 1.0)),
-        //Light::new(Vec3::new(-10.5, 1.0, -10.75), Vec3::from_float(1.0)),
+        Light::new(Vec3::new(-10.5, 1.0, -10.75), Vec3::from_float(1.0)),
     ];
 
     let spheres = vec![
@@ -29,6 +32,7 @@ fn main() {
             .color(0.0, 1.0, 1.0)
             .diffuse(0.7)
             .reflective(0.5)
+            .specular(1.0)
             .translation(-0.5, 1.0, 0.5)
             .scaling(1.0, 1.0, 1.0),
         Sphere::default()
@@ -44,12 +48,12 @@ fn main() {
             .scaling(0.33, 0.33, 0.33),
     ];
 
-    let w = World::new(camera, lights, spheres);
+    let rt = RayTracer::new(World::new(camera, lights, spheres));
     canvas.for_each(|pixel, x, y| {
-        let ray = w.camera.get_ray(x, y);
-        let color = minirt::trace(&w, &ray, 0);
-        //print!("\r{} pixel", 1000 * y + x);
+        let ray = rt.world().camera.get_ray(x, y);
+        let color = rt.trace(&ray, 0);
         color.apply(pixel)
     });
+
     canvas.export_ppm("file.ppm").ok();
 }
