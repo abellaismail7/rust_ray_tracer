@@ -1,4 +1,4 @@
-use minirt::{
+use rt::{
     scene::canvas::Canvas,
     utils::{matrix::Mat, vec3::Vec3},
     world::transform::Transformable,

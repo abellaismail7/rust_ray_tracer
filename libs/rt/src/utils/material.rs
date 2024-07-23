@@ -1,4 +1,3 @@
-
 use super::vec3::{Float, Vec3};
 
 #[derive(Debug, Clone)]

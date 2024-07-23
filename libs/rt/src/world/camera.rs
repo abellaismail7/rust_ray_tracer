@@ -4,6 +4,8 @@ use crate::utils::{
     vec3::{Float, Vec3},
 };
 
+use super::transform::Transformable;
+
 #[derive(Debug)]
 pub struct Camera {
     pub width: u32,
@@ -12,6 +14,7 @@ pub struct Camera {
     pub y_step: Float,
     ar: Float,
     angle: Float,
+    t: Mat,
     inverse: Mat,
     fov: f32,
 }
@@ -28,6 +31,7 @@ impl Camera {
             x_step: (2.0 / (width as Float)),
             y_step: (2.0 / (height as Float)),
             inverse: t.inverse(),
+            t,
             fov,
         }
     }
@@ -55,5 +59,13 @@ impl Camera {
         let o = &self.inverse * &Vec3::from_float(0.0);
         let dir = (p - &o).norm();
         Ray::new(o, dir)
+    }
+}
+
+impl Transformable for Camera {
+    #[inline]
+    fn apply_transform(&mut self, transform: &Mat) {
+        self.t = &self.t * transform;
+        self.inverse = self.t.inverse();
     }
 }

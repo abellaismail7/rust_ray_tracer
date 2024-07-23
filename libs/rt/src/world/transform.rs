@@ -1,14 +1,26 @@
 use crate::utils::{matrix::Mat, vec3::Float};
 
+#[macro_export]
+macro_rules! transformfun {
+    ($func_name:ident; $func_name_apply:ident ($self:ident, $($param:ident : $type:ty),*) $block:block) => {
+        fn $func_name(mut $self, $($param: $type),*) -> Self {
+            $block
+            $self
+        }
+
+        fn $func_name_apply(&mut $self, $($param: $type),*) {
+            $block
+        }
+    };
+}
 pub trait Transformable: Sized {
-    fn translation(mut self, x: Float, y: Float, z: Float) -> Self {
+    transformfun!(translation; apply_translation (self, x: Float, y: Float, z: Float) {
         let mut m = Mat::identity(4);
         m.tab[0][3] = x;
         m.tab[1][3] = y;
         m.tab[2][3] = z;
         self.apply_transform(&m);
-        self
-    }
+    });
 
     fn scaling(mut self, x: Float, y: Float, z: Float) -> Self {
         let mut m = Mat::identity(4);
@@ -19,35 +31,32 @@ pub trait Transformable: Sized {
         self
     }
 
-    fn rotation_x(mut self, r: Float) -> Self {
+    transformfun!(rotation_x; apply_rotation_x (self, r : Float) {
         let mut m = Mat::identity(4);
         m.tab[1][1] = r.cos();
         m.tab[1][2] = -r.sin();
         m.tab[2][1] = r.sin();
         m.tab[2][2] = r.cos();
         self.apply_transform(&m);
-        self
-    }
+    });
 
-    fn rotation_y(mut self, r: Float) -> Self {
+    transformfun!(rotation_y; apply_rotation_y (self, r : Float) {
         let mut m = Mat::identity(4);
         m.tab[0][0] = r.cos();
         m.tab[0][2] = r.sin();
         m.tab[2][0] = -r.sin();
         m.tab[2][2] = r.cos();
         self.apply_transform(&m);
-        self
-    }
+    });
 
-    fn rotation_z(mut self, r: Float) -> Self {
+    transformfun!(rotation_z; apply_rotation_z (self, r : Float) {
         let mut m = Mat::identity(4);
         m.tab[0][0] = r.cos();
         m.tab[0][1] = -r.sin();
         m.tab[1][0] = r.sin();
         m.tab[1][1] = r.cos();
         self.apply_transform(&m);
-        self
-    }
+    });
 
     fn shearing(
         mut self,

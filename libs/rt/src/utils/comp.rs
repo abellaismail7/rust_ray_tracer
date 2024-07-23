@@ -2,7 +2,7 @@ use crate::world::{shapes::shape::Shape, w::Intersection};
 
 use super::{ray::Ray, vec3::Vec3};
 
-#[derive(Debug)]
+//#[derive(Debug)]
 pub struct Comp<'a> {
     pub intersection: &'a Intersection<'a>,
     pub hitp: Vec3,

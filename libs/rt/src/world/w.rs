@@ -5,23 +5,28 @@ use crate::utils::{
     vec3::{Float, Vec3},
 };
 
-use super::{camera::Camera, light::Light, shapes::{shape::Shape, sphere::Sphere}, transform::Transformable};
+use super::{
+    camera::Camera,
+    light::Light,
+    shapes::{shape::Shape, sphere::Sphere},
+    transform::Transformable,
+};
 
-#[derive(Debug)]
+//#[derive(Debug)]
 pub struct World {
     pub camera: Camera,
     pub lights: Vec<Light>,
-    pub spheres: Vec<Sphere>,
+    pub spheres: Vec<Box<dyn Shape>>,
 }
 
-#[derive(Debug)]
+//#[derive(Debug)]
 pub struct Intersection<'a> {
-    pub sp: &'a Sphere,
+    pub sp: &'a Box<dyn Shape>,
     pub t: Float,
 }
 
 impl World {
-    pub fn new(camera: Camera, lights: Vec<Light>, spheres: Vec<Sphere>) -> Self {
+    pub fn new(camera: Camera, lights: Vec<Light>, spheres: Vec<Box<dyn Shape>>) -> Self {
         Self {
             camera,
             lights,
@@ -58,12 +63,14 @@ impl Default for World {
             Vec3::new(-10.0, 10.0, -10.0),
             Vec3::new(1.0, 1.0, 1.0),
         )];
-        let spheres = vec![
-            Sphere::default()
-                .color(0.8, 1.0, 0.6)
-                .diffuse(0.7)
-                .specular(0.5),
-            Sphere::default().scaling(0.5, 0.5, 0.5),
+        let spheres: Vec<Box<dyn Shape>> = vec![
+            Box::new(
+                Sphere::default()
+                    .color(0.8, 1.0, 0.6)
+                    .diffuse(0.7)
+                    .specular(0.5),
+            ),
+            Box::new(Sphere::default().scaling(0.5, 0.5, 0.5)),
         ];
 
         World {

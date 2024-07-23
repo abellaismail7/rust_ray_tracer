@@ -1,4 +1,4 @@
-use minirt::{
+use rt::{
     rt::RayTracer,
     scene::canvas::Canvas,
     utils::{material::IMaterial, matrix::Mat, vec3::Vec3},

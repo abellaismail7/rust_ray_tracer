@@ -39,6 +39,10 @@ impl Vec3 {
         self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
     }
 
+    pub fn dotxz(&self, rhs: &Vec3) -> Float {
+        self.x * rhs.x + self.z * rhs.z
+    }
+
     pub fn mag(&self) -> Float {
         self.dot(self).sqrt()
     }

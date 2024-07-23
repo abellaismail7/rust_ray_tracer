@@ -54,7 +54,7 @@ impl RayTracer {
         let mut specular = Vec3::zero();
         let mut diff = Vec3::zero();
 
-        let m = &c.intersection.sp.m;
+        let m = &c.intersection.sp.get_material();
         let color = &m.color * &light.intensity;
         let ray = light.ray_at(&c.hitp);
         let light_dot = (-&ray.dir).dot(&c.normalv);
@@ -76,11 +76,12 @@ impl RayTracer {
 
     fn reflected_color(&self, comp: &Comp, depth: usize) -> Vec3 {
         let nearest = comp.intersection;
-        if nearest.sp.m.reflective > 0.0 && depth < 10 {
+        let material = nearest.sp.get_material();
+        if material.reflective > 0.0 && depth < 10 {
             self.trace(
                 &Ray::new(comp.hitp.clone(), comp.reflectv.clone()),
                 depth + 1,
-            ) * nearest.sp.m.reflective
+            ) * material.reflective
         } else {
             Vec3::zero()
         }
